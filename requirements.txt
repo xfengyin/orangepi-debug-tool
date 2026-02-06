@@ -1,9 +1,1 @@
-# 项目配置和依赖
-
-# Python 依赖（如适用）
-# requests
-# pyserial
-# numpy
-# matplotlib
-
-# 或者其他依赖
+pyserial==3.5
