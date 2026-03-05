@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orangepi-debug-tool"
+version = "2.0.0"
+description = "OrangePi 上位机调试工具 - 现代化硬件调试解决方案"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "xfengyin", email = "xfengyin@users.noreply.github.com"}
+]
+keywords = ["orangepi", "debug", "serial", "gpio", "hardware"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: System :: Hardware",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "pyserial>=3.5",
+    "customtkinter>=5.2.0",
+    "pyyaml>=6.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+orangepi-debug = "orangepi_debug_tool.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/xfengyin/orangepi-debug-tool"
+Repository = "https://github.com/xfengyin/orangepi-debug-tool"
+Issues = "https://github.com/xfengyin/orangepi-debug-tool/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=src --cov-report=html"
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
