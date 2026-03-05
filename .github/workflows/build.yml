@@ -5,11 +5,6 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version tag (e.g., v1.0.0)'
-        required: false
-        default: 'v0.0.0'
 
 jobs:
   build:
@@ -42,24 +37,28 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-          pip install -r requirements.txt || true
-          pip install customtkinter pyserial pyyaml rich || true
+          pip install customtkinter pyserial pyyaml rich
 
-      - name: Build executable (Windows)
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed ^
+            --name "OrangePiDebugTool" ^
+            --add-data "src/orangepi_debug_tool;orangepi_debug_tool" ^
+            --hidden-import=customtkinter ^
+            --hidden-import=serial ^
+            --hidden-import=serial.tools.list_ports ^
+            --hidden-import=yaml ^
+            --hidden-import=rich ^
+            --collect-all customtkinter ^
+            --paths src ^
+            run.py
+        shell: cmd
         if: matrix.platform == 'windows'
-        run: |
-          pyinstaller --onefile --windowed --name "OrangePiDebugTool" `
-            --add-data "src/orangepi_debug_tool;orangepi_debug_tool" `
-            --hidden-import=customtkinter `
-            --hidden-import=serial `
-            --collect-all customtkinter `
-            orange_debug_tool.py || pyinstaller --onefile --windowed --name "OrangePiDebugTool" orange_debug_tool.py
-        shell: pwsh
 
-      - name: Build executable (Linux/macOS)
-        if: matrix.platform != 'windows'
+      - name: Build with PyInstaller (Unix)
         run: |
-          pyinstaller --onefile --windowed --name "OrangePiDebugTool"             --add-data "src/orangepi_debug_tool:orangepi_debug_tool"             --hidden-import=customtkinter             --hidden-import=serial             --collect-all customtkinter             orange_debug_tool.py || pyinstaller --onefile --windowed --name "OrangePiDebugTool" orange_debug_tool.py
+          pyinstaller --onefile --windowed             --name "OrangePiDebugTool"             --add-data "src/orangepi_debug_tool:orangepi_debug_tool"             --hidden-import=customtkinter             --hidden-import=serial             --hidden-import=serial.tools.list_ports             --hidden-import=yaml             --hidden-import=rich             --collect-all customtkinter             --paths src             run.py
+        if: matrix.platform != 'windows'
 
       - name: Rename executable
         run: |
@@ -86,29 +85,10 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: List files
-        run: ls -la artifacts/ || true
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/**/*
           generate_release_notes: true
-          body: |
-            ## OrangePi Debug Tool Release
-            
-            ### 下载说明
-            - **Windows**: 下载 `OrangePiDebugTool-windows.exe`
-            - **Linux**: 下载 `OrangePiDebugTool-linux`
-            - **macOS**: 下载 `OrangePiDebugTool-macos`
-            
-            ### 使用方法
-            1. 下载对应平台的可执行文件
-            2. Windows: 双击运行 .exe 文件
-            3. Linux/macOS: 添加执行权限后运行
-               ```bash
-               chmod +x OrangePiDebugTool-linux
-               ./OrangePiDebugTool-linux
-               ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
