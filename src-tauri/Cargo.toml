@@ -1,0 +1,27 @@
+[package]
+name = "orangepi-debug-tool"
+version = "2.0.0"
+description = "现代化 OrangePi 调试工具"
+authors = ["Kk <xfengyin@gmail.com>"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = ["shell-open", "fs-read-file", "fs-write-file"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+tokio-serial = "5.4"
+rppal = "0.18"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "1.0"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+crc = "3.0"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
