@@ -30,9 +30,28 @@
 
 访问 [Releases](https://github.com/xfengyin/orangepi-debug-tool/releases) 下载：
 
-- **Windows**: `.msi` 或 `.exe`
-- **Linux**: `.deb` 或 `.AppImage`
-- **macOS**: `.dmg` 或 `.app`
+| 平台 | 安装包 | 说明 |
+|------|--------|------|
+| **Windows** | `.msi` | Windows Installer (推荐) |
+| **Windows** | `.exe` | NSIS 安装程序 |
+| **Linux** | `.deb` | Debian/Ubuntu |
+| **Linux** | `.AppImage` | 通用 Linux (免安装) |
+| **macOS** | `.dmg` | macOS Disk Image |
+| **macOS** | `.app` | macOS Application |
+
+### 方式 2: 自动构建
+
+项目使用 GitHub Actions 自动构建多平台安装包。
+
+**触发方式:**
+```bash
+git tag -a v2.0.0 -m "Release v2.0.0"
+git push origin v2.0.0
+```
+
+构建完成后，安装包将自动上传到 GitHub Releases。
+
+📚 详见 [构建指南](docs/BUILD-GUIDE.md)
 
 ### 方式 2: 源码构建
 
