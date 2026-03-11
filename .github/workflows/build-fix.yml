@@ -38,17 +38,14 @@ jobs:
             libappindicator3-dev \
             libsecret-1-dev
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-          override: true
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
         run: |
@@ -82,17 +79,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-          override: true
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
         run: |
@@ -126,17 +120,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-          override: true
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
         run: |
