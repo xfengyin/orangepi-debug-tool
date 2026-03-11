@@ -7,7 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_VERSION: 1.80
+  RUST_VERSION: 1.85
   NODE_VERSION: 18
 
 jobs:
