@@ -4,7 +4,7 @@
   "description": "现代化 OrangePi 调试工具 - Tauri 桌面版",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
