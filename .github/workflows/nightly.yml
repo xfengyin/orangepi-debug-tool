@@ -1,0 +1,78 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  NODE_VERSION: '20'
+  RUST_VERSION: '1.75'
+
+jobs:
+  build-nightly:
+    name: Build Nightly
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            target: universal-apple-darwin
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cargo
+            src-tauri/target
+          key: ${{ runner.os }}-nightly-${{ hashFiles('package-lock.json', 'src-tauri/Cargo.lock') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Set nightly version
+        run: |
+          DATE=$(date +%Y%m%d)
+          sed -i "s/\"version\": \"[0-9.]\+\"/\"version\": \"2.0.0-nightly.$DATE\"/" package.json
+          sed -i 's/version = "[0-9.]\+"/version = "2.0.0-nightly.'$DATE'"/' src-tauri/Cargo.toml
+
+      - name: Build Tauri app
+        run: npm run tauri:build
+
+      - name: Upload nightly artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-${{ matrix.target }}
+          path: |
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*.dmg
+          retention-days: 7

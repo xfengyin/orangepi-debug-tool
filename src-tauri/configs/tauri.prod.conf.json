@@ -1,0 +1,119 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run build",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "../dist",
+    "distDir": "../dist",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "OrangePi Debug Tool",
+    "version": "2.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "fs": {
+        "all": false,
+        "readFile": true,
+        "writeFile": true,
+        "readDir": true,
+        "exists": true,
+        "scope": ["$APPDATA/**", "$RESOURCE/**"]
+      },
+      "os": {
+        "all": false,
+        "platform": true,
+        "version": true,
+        "type": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "startDragging": true
+      },
+      "dialog": {
+        "all": true
+      },
+      "notification": {
+        "all": true
+      },
+      "process": {
+        "relaunch": true,
+        "exit": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": ["deb", "msi", "dmg", "appimage"],
+      "identifier": "com.orangepi.debug-tool",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "resources": ["resources/**/*"],
+      "copyright": "© 2026 OrangePi Team",
+      "category": "DeveloperTool",
+      "shortDescription": "OrangePi Debug Tool",
+      "longDescription": "A comprehensive debugging utility for OrangePi devices",
+      "macOS": {
+        "frameworks": [],
+        "minimumSystemVersion": "10.13",
+        "license": "MIT"
+      },
+      "windows": {
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "http://timestamp.digicert.com"
+      },
+      "linux": {
+        "appimage": {
+          "bundleMediaFramework": false
+        },
+        "deb": {
+          "depends": ["libgtk-3-0", "libwebkit2gtk-4.0-37"]
+        }
+      }
+    },
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://api.orangepi.org;"
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    },
+    "updater": {
+      "active": true,
+      "endpoints": ["https://api.orangepi.org/v1/update/{{target}}/{{current_version}}"],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJERjE3QzE0MDAzMzE1RkYKUldSR1JhN1pTVjRmTUNOWE5vd2ZiZG5WdmxYWWpNWUxPMXlObkhSK3ZrYnJRM1dLYXZ6QmZrNQo="
+    },
+    "windows": [
+      {
+        "title": "OrangePi Debug Tool",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1000,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "devtools": false
+      }
+    ]
+  }
+}

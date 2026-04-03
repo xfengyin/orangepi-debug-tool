@@ -1,0 +1,69 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "OrangePi Debug Tool (Dev)",
+    "version": "2.0.0-dev"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true,
+      "shell": {
+        "all": true,
+        "open": true,
+        "execute": true,
+        "sidecar": true,
+        "scope": [
+          {
+            "name": "binaries/serial-monitor",
+            "sidecar": true,
+            "args": true
+          }
+        ]
+      },
+      "fs": {
+        "all": true,
+        "scope": ["$APPDATA/**", "$TEMP/**", "$DESKTOP/**", "$DOWNLOAD/**"]
+      },
+      "window": {
+        "all": true
+      },
+      "devtools": {
+        "all": true
+      }
+    },
+    "bundle": {
+      "active": false
+    },
+    "security": {
+      "csp": null,
+      "dangerousUseHttpScheme": true
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png"
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "title": "OrangePi Debug Tool [DEV MODE]",
+        "width": 1600,
+        "height": 1000,
+        "minWidth": 1000,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "decorations": true,
+        "transparent": false,
+        "devtools": true
+      }
+    ]
+  }
+}

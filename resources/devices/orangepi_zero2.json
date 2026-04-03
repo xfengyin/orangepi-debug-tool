@@ -1,0 +1,31 @@
+{
+  "name": "OrangePi Zero 2",
+  "model": "zero2",
+  "soc": "Allwinner H616",
+  "gpio_pins": [
+    { "pin": 3, "name": "PA12", "functions": ["i2c0_scl", "gpio"], "gpio_num": 12 },
+    { "pin": 5, "name": "PA11", "functions": ["i2c0_sda", "gpio"], "gpio_num": 11 },
+    { "pin": 7, "name": "PA6", "functions": ["gpio"], "gpio_num": 6 },
+    { "pin": 8, "name": "PG8", "functions": ["uart1_tx", "gpio"], "gpio_num": 200 },
+    { "pin": 10, "name": "PG9", "functions": ["uart1_rx", "gpio"], "gpio_num": 201 },
+    { "pin": 11, "name": "PA1", "functions": ["gpio"], "gpio_num": 1 },
+    { "pin": 12, "name": "PA7", "functions": ["gpio"], "gpio_num": 7 },
+    { "pin": 13, "name": "PA0", "functions": ["gpio"], "gpio_num": 0 },
+    { "pin": 15, "name": "PA3", "functions": ["gpio"], "gpio_num": 3 },
+    { "pin": 16, "name": "PA15", "functions": ["gpio"], "gpio_num": 15 },
+    { "pin": 18, "name": "PA16", "functions": ["gpio"], "gpio_num": 16 },
+    { "pin": 19, "name": "PA14", "functions": ["spi1_clk", "gpio"], "gpio_num": 14 },
+    { "pin": 21, "name": "PA13", "functions": ["spi1_mosi", "gpio"], "gpio_num": 13 },
+    { "pin": 22, "name": "PA2", "functions": ["gpio"], "gpio_num": 2 },
+    { "pin": 23, "name": "PA10", "functions": ["spi1_cs0", "gpio"], "gpio_num": 10 },
+    { "pin": 24, "name": "PA8", "functions": ["spi1_miso", "gpio"], "gpio_num": 8 }
+  ],
+  "pwm_channels": [
+    { "chip": 0, "channel": 0, "name": "PWM0" },
+    { "chip": 0, "channel": 1, "name": "PWM1" }
+  ],
+  "uart_ports": [
+    { "name": "uart0", "tx": "PA10", "rx": "PA11", "description": "Debug UART" },
+    { "name": "uart1", "tx": "PG8", "rx": "PG9", "description": "General UART" }
+  ]
+}

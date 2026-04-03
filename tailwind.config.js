@@ -1,0 +1,88 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#e6f0ff',
+          100: '#cce0ff',
+          200: '#99c2ff',
+          300: '#66a3ff',
+          400: '#3385ff',
+          500: '#165DFF', // Main brand color
+          600: '#004be6',
+          700: '#0039b3',
+          800: '#002680',
+          900: '#00144d',
+        },
+        secondary: {
+          50: '#f0f2f5',
+          100: '#d9dee6',
+          200: '#b3bccd',
+          300: '#8d9ab3',
+          400: '#67789a',
+          500: '#4e5f7a',
+          600: '#3d4a60',
+          700: '#2c3646',
+          800: '#1b222c',
+          900: '#0a0d12',
+        },
+        success: {
+          50: '#e8f5e9',
+          100: '#c8e6c9',
+          200: '#a5d6a7',
+          300: '#81c784',
+          400: '#66bb6a',
+          500: '#4caf50',
+          600: '#43a047',
+          700: '#388e3c',
+          800: '#2e7d32',
+          900: '#1b5e20',
+        },
+        warning: {
+          50: '#fff3e0',
+          100: '#ffe0b2',
+          200: '#ffcc80',
+          300: '#ffb74d',
+          400: '#ffa726',
+          500: '#ff9800',
+          600: '#fb8c00',
+          700: '#f57c00',
+          800: '#ef6c00',
+          900: '#e65100',
+        },
+        error: {
+          50: '#ffebee',
+          100: '#ffcdd2',
+          200: '#ef9a9a',
+          300: '#e57373',
+          400: '#ef5350',
+          500: '#f44336',
+          600: '#e53935',
+          700: '#d32f2f',
+          800: '#c62828',
+          900: '#b71c1c',
+        },
+      },
+      fontFamily: {
+        sans: ['Roboto', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'spin-slow': 'spin 3s linear infinite',
+        'bounce-slow': 'bounce 2s infinite',
+      },
+      boxShadow: {
+        'glow': '0 0 20px rgba(22, 93, 255, 0.3)',
+        'glow-lg': '0 0 40px rgba(22, 93, 255, 0.4)',
+      },
+    },
+  },
+  plugins: [],
+}

@@ -1,0 +1,44 @@
+{
+  "build": {
+    "beforeDevCommand": "echo 'Test mode - no dev server'",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "../dist",
+    "distDir": "../dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "OrangePi Debug Tool (Test)",
+    "version": "2.0.0-test"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true
+    },
+    "bundle": {
+      "active": false
+    },
+    "security": {
+      "csp": null,
+      "dangerousUseHttpScheme": true,
+      "dangerousDisableAssetCspModification": true
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png"
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "title": "OrangePi Debug Tool [TEST MODE]",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "center": true,
+        "devtools": true
+      }
+    ]
+  }
+}

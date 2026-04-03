@@ -1,0 +1,102 @@
+[package]
+name = "orangepi-debug-tool"
+version = "2.0.0"
+description = "OrangePi Debug Tool - A comprehensive debugging utility for OrangePi devices"
+authors = ["OrangePi Team"]
+license = "MIT"
+repository = "https://github.com/orangepi-debug-tool"
+edition = "2021"
+rust-version = "1.75"
+
+[profile.dev]
+incremental = true
+codegen-units = 256
+panic = "unwind"
+debug = true
+opt-level = 0
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = 3
+strip = true
+debug = false
+
+[profile.test]
+opt-level = 1
+debug = true
+
+[dependencies]
+# Tauri Core
+tauri = { version = "1.6", features = ["shell-open", "system-tray", "updater"] }
+tauri-plugin-shell = { version = "1.0" }
+tauri-plugin-fs = { version = "1.0" }
+tauri-plugin-os = { version = "1.0" }
+
+# Async Runtime
+tokio = { version = "1.36", features = ["full", "parking_lot"] }
+tokio-serial = "5.4"
+tokio-util = { version = "0.7", features = ["codec", "io"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+rmp-serde = "1.1"
+
+# Error Handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging & Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-appender = "0.2"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "migrate", "chrono"] }
+
+# GPIO & Hardware
+gpio-cdev = "0.6"
+ sysfs-gpio = { version = "0.6", optional = true }
+pwm = { version = "0.3", optional = true }
+
+# Utilities
+parking_lot = "0.12"
+dashmap = "5.5"
+once_cell = "1.19"
+lazy_static = "1.4"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.7", features = ["v4", "serde"] }
+regex = "1.10"
+bytes = "1.5"
+futures = "0.3"
+async-trait = "0.1"
+crossbeam = "0.8"
+
+# Configuration
+config = "0.14"
+dirs = "5.0"
+
+# HTTP Client (for updates)
+reqwest = { version = "0.12", features = ["json"], optional = true }
+
+[dev-dependencies]
+tempfile = "3.10"
+mockall = "0.12"
+serial_test = "3.0"
+criterion = { version = "0.5", features = ["async_tokio"] }
+
+[features]
+default = ["hardware-support"]
+hardware-support = ["gpio-cdev", "pwm"]
+mock-hardware = []
+updater = ["reqwest"]
+
+[[bench]]
+name = "serial_benchmark"
+harness = false
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
