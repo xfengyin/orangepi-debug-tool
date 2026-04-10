@@ -93,7 +93,6 @@ const SerialPage: React.FC = memo(() => {
 
     let data: string | number[];
     if (inputMode === 'hex') {
-      // Parse hex string
       const hexStr = inputText.replace(/\s/g, '');
       data = hexStr.match(/.{1,2}/g)?.map((b) => parseInt(b, 16)) || [];
     } else {
@@ -120,29 +119,35 @@ const SerialPage: React.FC = memo(() => {
 
   // Stats display
   const statsDisplay = useMemo(() => [
-    { label: '接收', value: status.rx_bytes, color: 'success' },
-    { label: '发送', value: status.tx_bytes, color: 'primary' },
+    { label: 'RX', value: status.rx_bytes, color: '#4ade80' },
+    { label: 'TX', value: status.tx_bytes, color: '#a78bfa' },
   ], [status.rx_bytes, status.tx_bytes]);
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {/* Connection Panel */}
-      <Card>
-        <CardContent>
+      {/* Connection Panel - Cursor Dark Card */}
+      <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a' }}>
+        <CardContent sx={{ pb: '12px !important' }}>
           <Grid container spacing={2} alignItems="center">
             {/* Port Selection */}
             <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth size="small">
-                <InputLabel>串口</InputLabel>
+                <InputLabel sx={{ color: '#71717a', '&.Mui-focused': { color: '#a78bfa' } }}>串口</InputLabel>
                 <Select
                   value={selectedPort || ''}
                   label="串口"
                   onChange={(e) => handlePortChange(e.target.value)}
                   disabled={status.connected}
+                  sx={{
+                    backgroundColor: '#0a0a0a',
+                    '& .MuiSelect-icon': { color: '#71717a' },
+                  }}
                 >
                   {ports.map((port) => (
                     <MenuItem key={port.port_name} value={port.port_name}>
-                      {port.port_name}
+                      <Typography sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.8rem' }}>
+                        {port.port_name}
+                      </Typography>
                     </MenuItem>
                   ))}
                 </Select>
@@ -152,16 +157,22 @@ const SerialPage: React.FC = memo(() => {
             {/* Baud Rate */}
             <Grid item xs={6} sm={3} md={2}>
               <FormControl fullWidth size="small">
-                <InputLabel>波特率</InputLabel>
+                <InputLabel sx={{ color: '#71717a', '&.Mui-focused': { color: '#a78bfa' } }}>波特率</InputLabel>
                 <Select
                   value={config.baud_rate}
                   label="波特率"
                   onChange={(e) => setConfig({ baud_rate: Number(e.target.value) })}
                   disabled={status.connected}
+                  sx={{
+                    backgroundColor: '#0a0a0a',
+                    '& .MuiSelect-icon': { color: '#71717a' },
+                  }}
                 >
                   {baudRates.map((rate) => (
                     <MenuItem key={rate} value={rate}>
-                      {rate}
+                      <Typography sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.8rem' }}>
+                        {rate}
+                      </Typography>
                     </MenuItem>
                   ))}
                 </Select>
@@ -171,16 +182,22 @@ const SerialPage: React.FC = memo(() => {
             {/* Data Bits */}
             <Grid item xs={6} sm={3} md={1}>
               <FormControl fullWidth size="small">
-                <InputLabel>数据位</InputLabel>
+                <InputLabel sx={{ color: '#71717a', '&.Mui-focused': { color: '#a78bfa' } }}>数据位</InputLabel>
                 <Select
                   value={config.data_bits}
                   label="数据位"
                   onChange={(e) => setConfig({ data_bits: Number(e.target.value) })}
                   disabled={status.connected}
+                  sx={{
+                    backgroundColor: '#0a0a0a',
+                    '& .MuiSelect-icon': { color: '#71717a' },
+                  }}
                 >
                   {dataBits.map((bits) => (
                     <MenuItem key={bits} value={bits}>
-                      {bits}
+                      <Typography sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.8rem' }}>
+                        {bits}
+                      </Typography>
                     </MenuItem>
                   ))}
                 </Select>
@@ -190,12 +207,16 @@ const SerialPage: React.FC = memo(() => {
             {/* Parity */}
             <Grid item xs={6} sm={3} md={1}>
               <FormControl fullWidth size="small">
-                <InputLabel>校验</InputLabel>
+                <InputLabel sx={{ color: '#71717a', '&.Mui-focused': { color: '#a78bfa' } }}>校验</InputLabel>
                 <Select
                   value={config.parity}
                   label="校验"
                   onChange={(e) => setConfig({ parity: e.target.value as any })}
                   disabled={status.connected}
+                  sx={{
+                    backgroundColor: '#0a0a0a',
+                    '& .MuiSelect-icon': { color: '#71717a' },
+                  }}
                 >
                   {parities.map((p) => (
                     <MenuItem key={p} value={p}>
@@ -209,16 +230,22 @@ const SerialPage: React.FC = memo(() => {
             {/* Stop Bits */}
             <Grid item xs={6} sm={3} md={1}>
               <FormControl fullWidth size="small">
-                <InputLabel>停止位</InputLabel>
+                <InputLabel sx={{ color: '#71717a', '&.Mui-focused': { color: '#a78bfa' } }}>停止位</InputLabel>
                 <Select
                   value={config.stop_bits}
                   label="停止位"
                   onChange={(e) => setConfig({ stop_bits: Number(e.target.value) })}
                   disabled={status.connected}
+                  sx={{
+                    backgroundColor: '#0a0a0a',
+                    '& .MuiSelect-icon': { color: '#71717a' },
+                  }}
                 >
                   {stopBits.map((bits) => (
                     <MenuItem key={bits} value={bits}>
-                      {bits}
+                      <Typography sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.8rem' }}>
+                        {bits}
+                      </Typography>
                     </MenuItem>
                   ))}
                 </Select>
@@ -228,14 +255,32 @@ const SerialPage: React.FC = memo(() => {
             {/* Action Buttons */}
             <Grid item xs={12} sm={6} md={4}>
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Tooltip title="刷新串口列表">
-                  <IconButton onClick={refreshPorts} size="small">
-                    <RefreshIcon />
+                <Tooltip title="刷新串口列表" arrow>
+                  <IconButton
+                    onClick={refreshPorts}
+                    size="small"
+                    sx={{
+                      color: '#71717a',
+                      border: '1px solid #2a2a2a',
+                      borderRadius: 1.5,
+                      '&:hover': { color: '#e4e4e7', borderColor: '#3a3a3a', backgroundColor: 'rgba(255,255,255,0.04)' },
+                    }}
+                  >
+                    <RefreshIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="自动检测">
-                  <IconButton onClick={handleAutoDetect} size="small">
-                    <AutoIcon />
+                <Tooltip title="自动检测" arrow>
+                  <IconButton
+                    onClick={handleAutoDetect}
+                    size="small"
+                    sx={{
+                      color: '#71717a',
+                      border: '1px solid #2a2a2a',
+                      borderRadius: 1.5,
+                      '&:hover': { color: '#a78bfa', borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,0.05)' },
+                    }}
+                  >
+                    <AutoIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
                 <Button
@@ -245,6 +290,18 @@ const SerialPage: React.FC = memo(() => {
                   disabled={isConnecting || !selectedPort}
                   startIcon={status.connected ? <UsbOffIcon /> : <UsbIcon />}
                   fullWidth
+                  sx={{
+                    ...(status.connected
+                      ? {
+                          borderColor: 'rgba(239, 68, 68, 0.4)',
+                          color: '#f87171',
+                          '&:hover': {
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                          },
+                        }
+                      : {}),
+                  }}
                 >
                   {isConnecting ? '连接中...' : status.connected ? '断开' : '连接'}
                 </Button>
@@ -252,19 +309,55 @@ const SerialPage: React.FC = memo(() => {
             </Grid>
           </Grid>
 
-          {/* Stats */}
-          <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+          {/* Stats - Cursor-style mono labels */}
+          <Box sx={{ mt: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
             {statsDisplay.map((stat) => (
-              <Chip
+              <Box
                 key={stat.label}
-                size="small"
-                label={`${stat.label}: ${stat.value} bytes`}
-                color={stat.color as any}
-                variant="outlined"
-              />
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  backgroundColor: '#0a0a0a',
+                  border: '1px solid #2a2a2a',
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '0.65rem',
+                    fontFamily: '"JetBrains Mono", monospace',
+                    color: stat.color,
+                    fontWeight: 600,
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {stat.label}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.75rem',
+                    fontFamily: '"JetBrains Mono", monospace',
+                    color: '#e4e4e7',
+                  }}
+                >
+                  {stat.value} B
+                </Typography>
+              </Box>
             ))}
             <Box sx={{ flexGrow: 1 }} />
-            <Button size="small" onClick={() => setShowChart(!showChart)}>
+            <Button
+              size="small"
+              onClick={() => setShowChart(!showChart)}
+              sx={{
+                color: '#71717a',
+                fontSize: '0.75rem',
+                fontFamily: '"JetBrains Mono", monospace',
+                '&:hover': { color: '#a78bfa', backgroundColor: 'rgba(124, 58, 237, 0.05)' },
+              }}
+            >
               {showChart ? '隐藏图表' : '显示图表'}
             </Button>
           </Box>
@@ -273,7 +366,7 @@ const SerialPage: React.FC = memo(() => {
 
       {/* Chart Panel */}
       {showChart && (
-        <Card>
+        <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a' }}>
           <CardContent>
             <SerialChart />
           </CardContent>
@@ -283,7 +376,7 @@ const SerialPage: React.FC = memo(() => {
       {/* Terminal & Command Panel */}
       <Grid container spacing={2} sx={{ flexGrow: 1, minHeight: 0 }}>
         <Grid item xs={12} md={8} sx={{ height: '100%' }}>
-          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a' }}>
             <CardContent sx={{ flexGrow: 1, p: 0, overflow: 'hidden' }}>
               <SerialTerminal />
             </CardContent>
@@ -295,8 +388,8 @@ const SerialPage: React.FC = memo(() => {
         </Grid>
       </Grid>
 
-      {/* Input Panel */}
-      <Card>
+      {/* Input Panel - Cursor-style dark input */}
+      <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a' }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={9}>
@@ -315,16 +408,34 @@ const SerialPage: React.FC = memo(() => {
                       value={inputMode}
                       exclusive
                       onChange={(_, v) => v && setInputMode(v)}
-                      sx={{ mr: 1 }}
+                      sx={{
+                        mr: 1,
+                        '& .MuiToggleButton-root': {
+                          border: '1px solid #2a2a2a',
+                          color: '#52525b',
+                          py: 0.25,
+                          px: 1,
+                          fontSize: '0.7rem',
+                          '&.Mui-selected': {
+                            backgroundColor: 'rgba(124, 58, 237, 0.12)',
+                            color: '#a78bfa',
+                            borderColor: '#7c3aed',
+                          },
+                        },
+                      }}
                     >
                       <ToggleButton value="text">
-                        <TextIcon fontSize="small" />
+                        <TextIcon sx={{ fontSize: '0.9rem' }} />
                       </ToggleButton>
                       <ToggleButton value="hex">
-                        <HexIcon fontSize="small" />
+                        <HexIcon sx={{ fontSize: '0.9rem' }} />
                       </ToggleButton>
                     </ToggleButtonGroup>
                   ),
+                  sx: {
+                    fontFamily: inputMode === 'hex' ? '"JetBrains Mono", monospace' : '"Inter", sans-serif',
+                    fontSize: '0.85rem',
+                  },
                 }}
               />
             </Grid>
@@ -339,8 +450,15 @@ const SerialPage: React.FC = memo(() => {
                 >
                   发送
                 </Button>
-                <Tooltip title="清空">
-                  <IconButton onClick={clearData} disabled={!status.connected}>
+                <Tooltip title="清空" arrow>
+                  <IconButton
+                    onClick={clearData}
+                    disabled={!status.connected}
+                    sx={{
+                      color: '#52525b',
+                      '&:hover': { color: '#f87171', backgroundColor: 'rgba(239, 68, 68, 0.05)' },
+                    }}
+                  >
                     <ClearIcon />
                   </IconButton>
                 </Tooltip>

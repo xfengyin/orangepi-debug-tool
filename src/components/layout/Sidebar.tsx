@@ -56,147 +56,218 @@ const Sidebar: React.FC = memo(() => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
-          borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+          borderRight: '1px solid #2a2a2a',
+          backgroundColor: '#0a0a0a',
+          backgroundImage: 'none',
         },
       }}
     >
-      {/* Logo */}
+      {/* Logo - Cursor-style gradient accent */}
       <Box
         sx={{
           p: 2,
           display: 'flex',
           alignItems: 'center',
-          gap: 1,
-          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+          gap: 1.5,
+          borderBottom: '1px solid #2a2a2a',
         }}
       >
         <Box
           sx={{
-            width: 40,
-            height: 40,
+            width: 36,
+            height: 36,
             borderRadius: 2,
-            background: 'linear-gradient(135deg, #165DFF 0%, #4d85ff 100%)',
+            background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: 'white',
-            fontWeight: 'bold',
-            fontSize: '1.2rem',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            fontFamily: '"Inter", sans-serif',
+            letterSpacing: '-0.5px',
+            boxShadow: '0 0 12px rgba(124, 58, 237, 0.3)',
           }}
         >
           OP
         </Box>
         <Box>
-          <Typography variant="subtitle1" fontWeight="bold" noWrap>
+          <Typography
+            variant="subtitle1"
+            fontWeight={600}
+            noWrap
+            sx={{
+              fontSize: '0.9rem',
+              color: '#ffffff',
+              letterSpacing: '-0.01em',
+            }}
+          >
             OrangePi
           </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap>
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{
+              color: '#71717a',
+              fontSize: '0.7rem',
+              fontFamily: '"JetBrains Mono", monospace',
+            }}
+          >
             Debug Tool v2.0
           </Typography>
         </Box>
       </Box>
 
-      {/* Device status */}
+      {/* Device status - Cursor-style indicator */}
       <Box sx={{ p: 2, pb: 1 }}>
-        <Chip
-          size="small"
-          label={status.connected ? '已连接' : '未连接'}
-          color={status.connected ? 'success' : 'default'}
+        <Box
           sx={{
-            '& .MuiChip-label': {
-              display: 'flex',
-              alignItems: 'center',
-              gap: 0.5,
-            },
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            px: 1.5,
+            py: 0.75,
+            borderRadius: 1.5,
+            backgroundColor: status.connected ? 'rgba(74, 222, 128, 0.06)' : 'rgba(113, 113, 122, 0.06)',
+            border: '1px solid',
+            borderColor: status.connected ? 'rgba(74, 222, 128, 0.15)' : 'rgba(113, 113, 122, 0.1)',
           }}
-          icon={
-            <Box
-              component="span"
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              backgroundColor: status.connected ? '#4ade80' : '#71717a',
+              boxShadow: status.connected ? '0 0 6px rgba(74, 222, 128, 0.5)' : 'none',
+              transition: 'all 0.3s ease',
+            }}
+          />
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              color: status.connected ? '#4ade80' : '#71717a',
+              fontWeight: 500,
+              fontFamily: '"JetBrains Mono", monospace',
+            }}
+          >
+            {status.connected ? 'CONNECTED' : 'DISCONNECTED'}
+          </Typography>
+          {isOrangePi && (
+            <Chip
+              size="small"
+              label="OPi"
               sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: status.connected ? '#4ade80' : '#94a3b8',
-                boxShadow: status.connected ? '0 0 8px #4ade80' : 'none',
+                ml: 'auto',
+                height: 18,
+                fontSize: '0.6rem',
+                fontFamily: '"JetBrains Mono", monospace',
+                backgroundColor: 'rgba(124, 58, 237, 0.15)',
+                color: '#a78bfa',
+                border: '1px solid rgba(124, 58, 237, 0.25)',
               }}
             />
-          }
-        />
-        {isOrangePi && (
-          <Chip
-            size="small"
-            label="OrangePi"
-            color="primary"
-            sx={{ ml: 1 }}
-          />
-        )}
+          )}
+        </Box>
       </Box>
 
-      <Divider />
+      <Divider sx={{ borderColor: '#2a2a2a' }} />
 
-      {/* Navigation */}
-      <List sx={{ flexGrow: 1, pt: 1 }}>
-        {navItems.map((item) => (
-          <ListItem key={item.id} disablePadding>
-            <ListItemButton
-              selected={currentView === item.id}
-              onClick={() => handleNavClick(item.id)}
-              sx={{
-                mx: 1,
-                borderRadius: 2,
-                '&.Mui-selected': {
-                  backgroundColor: (theme) =>
-                    theme.palette.mode === 'dark'
-                      ? 'rgba(77, 133, 255, 0.16)'
-                      : 'rgba(22, 93, 255, 0.12)',
-                },
-              }}
-            >
-              <ListItemIcon
+      {/* Navigation - File-tree style */}
+      <List sx={{ flexGrow: 1, pt: 1, px: 0.5 }}>
+        {navItems.map((item) => {
+          const isActive = currentView === item.id;
+          return (
+            <ListItem key={item.id} disablePadding>
+              <ListItemButton
+                selected={isActive}
+                onClick={() => handleNavClick(item.id)}
                 sx={{
-                  color:
-                    currentView === item.id
-                      ? 'primary.main'
-                      : 'text.secondary',
-                  minWidth: 40,
+                  mx: 1,
+                  borderRadius: 1.5,
+                  py: 1,
+                  px: 1.5,
+                  color: isActive ? '#a78bfa' : '#71717a',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                    color: '#e4e4e7',
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                    color: '#a78bfa',
+                    '&:hover': {
+                      backgroundColor: 'rgba(124, 58, 237, 0.15)',
+                      color: '#c4b5fd',
+                    },
+                  },
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{
-                  fontWeight: currentView === item.id ? 600 : 400,
-                  color: currentView === item.id ? 'primary.main' : 'text.primary',
-                }}
-              />
-              {item.badge && (
-                <Chip
-                  size="small"
-                  label={item.badge}
-                  color="primary"
-                  sx={{ height: 20 }}
+                <ListItemIcon
+                  sx={{
+                    color: 'inherit',
+                    minWidth: 32,
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '1.1rem',
+                    },
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{
+                    fontWeight: isActive ? 600 : 400,
+                    fontSize: '0.85rem',
+                    color: 'inherit',
+                    letterSpacing: '0.01em',
+                  }}
                 />
-              )}
-            </ListItemButton>
-          </ListItem>
-        ))}
+                {isActive && (
+                  <Box
+                    sx={{
+                      width: 3,
+                      height: 14,
+                      borderRadius: 1.5,
+                      background: 'linear-gradient(180deg, #7c3aed, #3b82f6)',
+                      mr: -0.5,
+                    }}
+                  />
+                )}
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
 
-      <Divider />
+      <Divider sx={{ borderColor: '#2a2a2a' }} />
 
       {/* Footer */}
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 1.5, px: 0.5 }}>
         <ListItemButton
           onClick={() => handleNavClick('settings')}
           sx={{
-            borderRadius: 2,
+            borderRadius: 1.5,
+            py: 1,
+            px: 1.5,
+            color: '#71717a',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              color: '#e4e4e7',
+            },
           }}
         >
-          <ListItemIcon sx={{ minWidth: 40 }}>
+          <ListItemIcon sx={{ minWidth: 32, color: 'inherit', '& .MuiSvgIcon-root': { fontSize: '1.1rem' } }}>
             <SettingsIcon />
           </ListItemIcon>
-          <ListItemText primary="设置" />
+          <ListItemText
+            primary="设置"
+            primaryTypographyProps={{
+              fontSize: '0.85rem',
+              fontWeight: 400,
+              color: 'inherit',
+            }}
+          />
         </ListItemButton>
       </Box>
     </Drawer>

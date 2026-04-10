@@ -34,40 +34,99 @@ const SerialTerminal: React.FC = memo(() => {
         height: '100%',
         p: 2,
         overflow: 'auto',
-        fontFamily: '"JetBrains Mono", monospace',
-        fontSize: '0.875rem',
-        lineHeight: 1.6,
-        backgroundColor: (theme) =>
-          theme.palette.mode === 'dark' ? '#1e1e1e' : '#f8f9fa',
-        color: (theme) =>
-          theme.palette.mode === 'dark' ? '#d4d4d4' : '#1e293b',
+        fontFamily: '"JetBrains Mono", "SF Mono", "Menlo", monospace',
+        fontSize: '0.8rem',
+        lineHeight: 1.7,
+        letterSpacing: '0.01em',
+        backgroundColor: '#0a0a0a',
+        color: '#e4e4e7',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-all',
+        border: '1px solid #2a2a2a',
+        borderRadius: 1,
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          background: 'linear-gradient(90deg, #7c3aed, #3b82f6)',
+          opacity: 0.5,
+        },
       }}
     >
       {!status.connected && dataBuffer.length === 0 ? (
         <Box
           sx={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             height: '100%',
-            color: 'text.secondary',
+            gap: 1,
           }}
         >
-          连接串口以开始通信
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              border: '1px solid #2a2a2a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#52525b',
+              fontSize: '1.2rem',
+              fontFamily: '"JetBrains Mono", monospace',
+              mb: 1,
+            }}
+          >
+            {'>'}_
+          </Box>
+          <Box
+            sx={{
+              color: '#52525b',
+              fontSize: '0.8rem',
+              fontFamily: '"Inter", sans-serif',
+            }}
+          >
+            连接串口以开始通信
+          </Box>
+          <Box
+            sx={{
+              color: '#3f3f46',
+              fontSize: '0.7rem',
+              fontFamily: '"JetBrains Mono", monospace',
+            }}
+          >
+            waiting for connection...
+          </Box>
         </Box>
       ) : (
         dataBuffer.map((packet, index) => (
           <Box
             key={index}
             sx={{
-              color: packet.is_rx
-                ? (theme) => theme.palette.success.main
-                : (theme) => theme.palette.primary.main,
+              color: packet.is_rx ? '#4ade80' : '#a78bfa',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              },
+              px: 0.5,
+              borderRadius: 0.5,
             }}
           >
-            {packet.is_rx ? '<< ' : '>> '}
+            <Box
+              component="span"
+              sx={{
+                color: packet.is_rx ? 'rgba(74, 222, 128, 0.5)' : 'rgba(167, 139, 250, 0.5)',
+                mr: 1,
+                fontSize: '0.7rem',
+              }}
+            >
+              {packet.is_rx ? 'RX' : 'TX'}
+            </Box>
             {formatData(packet.data)}
           </Box>
         ))

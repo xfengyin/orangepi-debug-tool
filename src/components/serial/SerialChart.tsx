@@ -33,8 +33,23 @@ const SerialChart: React.FC = memo(() => {
 
   if (chartData.length === 0) {
     return (
-      <Box sx={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography color="text.secondary">等待数据...</Typography>
+      <Box
+        sx={{
+          height: 200,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography
+          sx={{
+            color: '#52525b',
+            fontSize: '0.8rem',
+            fontFamily: '"JetBrains Mono", monospace',
+          }}
+        >
+          Waiting for data...
+        </Typography>
       </Box>
     );
   }
@@ -43,18 +58,41 @@ const SerialChart: React.FC = memo(() => {
     <Box sx={{ width: '100%', height: 200 }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="rgba(255, 255, 255, 0.05)"
+          />
           <XAxis dataKey="time" hide />
-          <YAxis domain={[0, 255]} />
-          <Tooltip />
+          <YAxis
+            domain={[0, 255]}
+            tick={{ fill: '#71717a', fontSize: 10, fontFamily: '"JetBrains Mono", monospace' }}
+            axisLine={{ stroke: '#2a2a2a' }}
+            tickLine={{ stroke: '#2a2a2a' }}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #2a2a2a',
+              borderRadius: 6,
+              color: '#e4e4e7',
+              fontSize: '0.75rem',
+              fontFamily: '"JetBrains Mono", monospace',
+            }}
+          />
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#165DFF"
+            stroke="url(#cursorGradient)"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
           />
+          <defs>
+            <linearGradient id="cursorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#7c3aed" />
+              <stop offset="100%" stopColor="#3b82f6" />
+            </linearGradient>
+          </defs>
         </LineChart>
       </ResponsiveContainer>
     </Box>
