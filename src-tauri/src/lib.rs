@@ -9,14 +9,22 @@
 #![warn(missing_docs)]
 #![warn(rustdoc::missing_doc_code_examples)]
 
+pub mod adapters;
 pub mod commands;
+pub mod config;
 pub mod devices;
 pub mod error;
+pub mod observability;
+pub mod services;
 pub mod state;
 pub mod utils;
 
+pub use adapters::{DeviceAdapterRegistry, DeviceAdapter, SerialAdapter, GpioAdapter, PwmAdapter};
+pub use config::{AppConfiguration, ConfigLoader, ConfigValidator};
 pub use error::{AppError, AppResult};
-pub use state::AppState;
+pub use observability::{HealthChecker, MetricsCollector, AppTracer, HealthStatus, HealthState};
+pub use services::{ServiceManager, SerialService, GpioService, PwmService};
+pub use state::{AppState, ConfigStore, DeviceStore, SessionStore};
 
 use tauri::Manager;
 use tracing::info;

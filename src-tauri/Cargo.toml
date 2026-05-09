@@ -29,10 +29,10 @@ debug = true
 
 [dependencies]
 # Tauri Core
-tauri = { version = "1.6", features = ["shell-open", "system-tray", "updater"] }
-tauri-plugin-shell = { version = "1.0" }
-tauri-plugin-fs = { version = "1.0" }
-tauri-plugin-os = { version = "1.0" }
+tauri = { version = "2.0", features = ["tray-icon"] }
+tauri-plugin-shell = "2.0"
+tauri-plugin-fs = "2.0"
+tauri-plugin-os = "2.0"
 
 # Async Runtime
 tokio = { version = "1.36", features = ["full", "parking_lot"] }
@@ -42,6 +42,7 @@ tokio-util = { version = "0.7", features = ["codec", "io"] }
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_yaml = "0.9"
 bincode = "1.3"
 rmp-serde = "1.1"
 
@@ -58,9 +59,8 @@ tracing-appender = "0.2"
 sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "migrate", "chrono"] }
 
 # GPIO & Hardware
-gpio-cdev = "0.6"
- sysfs-gpio = { version = "0.6", optional = true }
-pwm = { version = "0.3", optional = true }
+gpio-cdev = { version = "0.6", optional = true }
+sysfs_gpio = { version = "0.6", optional = true }
 
 # Utilities
 parking_lot = "0.12"
@@ -74,6 +74,7 @@ bytes = "1.5"
 futures = "0.3"
 async-trait = "0.1"
 crossbeam = "0.8"
+notify = { version = "6.1", default-features = false, features = ["macos_fsevent"] }
 
 # Configuration
 config = "0.14"
@@ -90,13 +91,9 @@ criterion = { version = "0.5", features = ["async_tokio"] }
 
 [features]
 default = ["hardware-support"]
-hardware-support = ["gpio-cdev", "pwm"]
+hardware-support = ["gpio-cdev"]
 mock-hardware = []
 updater = ["reqwest"]
 
-[[bench]]
-name = "serial_benchmark"
-harness = false
-
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = "2.0"
