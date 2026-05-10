@@ -3,7 +3,9 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use parking_lot::Mutex;
 use crate::error::{AppError, AppResult};
-use super::traits::{SerialAdapter, SerialConfig, SerialHandle};
+use super::traits::{SerialAdapter, SerialConfig, SerialHandle, DeviceAdapter, DeviceCapability, DeviceInfo, GpioAdapter, GpioDirection, GpioPull, GpioTrigger, GpioPinInfo, PwmAdapter, PwmConfig, PwmChannelInfo};
+use std::collections::HashSet;
+use crate::observability::health::{HealthStatus, HealthState};
 
 pub struct MockAdapter {
     pub delay_ms: u64,
@@ -45,13 +47,46 @@ impl MockAdapter {
 }
 
 #[async_trait]
-impl SerialAdapter for MockAdapter {
-    fn list_ports() -> Vec<String> {
+impl DeviceAdapter for MockAdapter {
+    fn id(&self) -> &'static str {
+        "mock"
+    }
+    
+    fn name(&self) -> &str {
+        "Mock Adapter"
+    }
+    
+    fn capabilities(&self) -> HashSet<DeviceCapability> {
         vec![
-            "/dev/ttyUSB0".to_string(),
-            "/dev/ttyUSB1".to_string(),
-            "/dev/ttyACM0".to_string(),
-        ]
+            DeviceCapability::Serial,
+            DeviceCapability::Gpio,
+            DeviceCapability::Pwm,
+        ].into_iter().collect()
+    }
+    
+    async fn health_check(&self) -> AppResult<HealthStatus> {
+        Ok(HealthStatus {
+            name: self.id().to_string(),
+            state: HealthState::Healthy,
+            message: Some("Mock adapter is healthy".to_string()),
+            latency_ms: Some(1),
+        })
+    }
+}
+
+#[async_trait]
+impl SerialAdapter for MockAdapter {
+    async fn list_ports(&self) -> AppResult<Vec<super::traits::SerialPortInfo>> {
+        Ok(vec![
+            super::traits::SerialPortInfo {
+                name: "/dev/ttyUSB0".to_string(),
+                port_type: "USB".to_string(),
+            },
+            super::traits::SerialPortInfo {
+                name: "/dev/ttyUSB1".to_string(),
+                port_type: "USB".to_string(),
+            },
+        ])
     }
     
     async fn connect(&self, config: SerialConfig) -> AppResult<SerialHandle> {
@@ -66,7 +101,7 @@ impl SerialAdapter for MockAdapter {
         state.serial_buffer.clear();
         
         Ok(SerialHandle {
-            port_name: config.port_name,
+            port_name: config.port_name.clone(),
             config,
             #[cfg(feature = "hardware-support")]
             stream: unsafe { std::mem::zeroed() },
@@ -109,8 +144,66 @@ impl SerialAdapter for MockAdapter {
         self.simulate_delay().await;
         Ok(())
     }
+}
+
+#[async_trait]
+impl GpioAdapter for MockAdapter {
+    async fn list_pins(&self) -> AppResult<Vec<GpioPinInfo>> {
+        Ok(vec![])
+    }
     
-    fn is_connected(&self) -> bool {
-        self.state.lock().serial_connected
+    async fn export_pin(&self, _pin: u32) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn unexport_pin(&self, _pin: u32) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn set_direction(&self, _pin: u32, _direction: GpioDirection) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn set_pull(&self, _pin: u32, _pull: GpioPull) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn read_pin(&self, _pin: u32) -> AppResult<u8> {
+        Ok(0)
+    }
+    
+    async fn write_pin(&self, _pin: u32, _value: u8) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn enable_interrupt(&self, _pin: u32, _trigger: GpioTrigger) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn disable_interrupt(&self, _pin: u32) -> AppResult<()> {
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl PwmAdapter for MockAdapter {
+    async fn list_channels(&self) -> AppResult<Vec<PwmChannelInfo>> {
+        Ok(vec![])
+    }
+    
+    async fn configure(&self, _config: PwmConfig) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn set_frequency(&self, _chip: u32, _channel: u32, _frequency: f64) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn set_duty_cycle(&self, _chip: u32, _channel: u32, _duty_cycle: f64) -> AppResult<()> {
+        Ok(())
+    }
+    
+    async fn enable(&self, _chip: u32, _channel: u32, _enabled: bool) -> AppResult<()> {
+        Ok(())
     }
 }
