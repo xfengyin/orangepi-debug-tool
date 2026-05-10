@@ -63,190 +63,139 @@ impl DeviceAdapterRegistry {
             default_pwm: None,
         }
     }
-
-    pub fn register<A: DeviceAdapter + 'static>(&mut self, adapter: A) -> Result<(), RegistryError> {
+    
+    pub fn register(&self, adapter: Arc<dyn DeviceAdapter>) -> AppResult<()> {
         let id = adapter.id();
         
         if self.adapters.contains_key(id) {
-            return Err(RegistryError::AlreadyRegistered(id));
+            return Err(AppError::InvalidState(format!(
+                "Adapter '{}' already registered",
+                id
+            )));
         }
         
-        let adapter = Arc::new(adapter);
+        self.adapters.insert(id.to_string(), adapter.clone());
         
-        if adapter.capabilities().contains(&DeviceCapability::Serial) {
-            if let Some(serial) = adapter.clone().downcast::<dyn SerialAdapter>() {
-                self.serial_adapters.insert(id.to_string(), serial);
-                if self.default_serial.is_none() {
-                    self.default_serial = Some(id.to_string());
-                }
+        if let Some(serial) = Arc::downcast::<dyn SerialAdapter>(adapter.clone()).ok() {
+            self.serial_adapters.insert(id.to_string(), serial);
+            if self.default_serial.is_none() {
+                self.default_serial = Some(id.to_string());
             }
         }
         
-        if adapter.capabilities().contains(&DeviceCapability::Gpio) {
-            if let Some(gpio) = adapter.clone().downcast::<dyn GpioAdapter>() {
-                self.gpio_adapters.insert(id.to_string(), gpio);
-                if self.default_gpio.is_none() {
-                    self.default_gpio = Some(id.to_string());
-                }
+        if let Some(gpio) = Arc::downcast::<dyn GpioAdapter>(adapter.clone()).ok() {
+            self.gpio_adapters.insert(id.to_string(), gpio);
+            if self.default_gpio.is_none() {
+                self.default_gpio = Some(id.to_string());
             }
         }
         
-        if adapter.capabilities().contains(&DeviceCapability::Pwm) {
-            if let Some(pwm) = adapter.clone().downcast::<dyn PwmAdapter>() {
-                self.pwm_adapters.insert(id.to_string(), pwm);
-                if self.default_pwm.is_none() {
-                    self.default_pwm = Some(id.to_string());
-                }
+        if let Some(pwm) = Arc::downcast::<dyn PwmAdapter>(adapter.clone()).ok() {
+            self.pwm_adapters.insert(id.to_string(), pwm);
+            if self.default_pwm.is_none() {
+                self.default_pwm = Some(id.to_string());
             }
         }
         
-        self.adapters.insert(id.to_string(), adapter);
-        
-        debug!("Registered adapter: {}", id);
+        info!("Registered adapter: {}", id);
         Ok(())
     }
-
-    pub fn unregister(&mut self, id: &str) -> bool {
+    
+    pub fn unregister(&self, id: &str) -> AppResult<()> {
+        if !self.adapters.contains_key(id) {
+            return Err(AppError::NotFound(format!("Adapter '{}' not found", id)));
+        }
+        
         self.adapters.remove(id);
         self.serial_adapters.remove(id);
         self.gpio_adapters.remove(id);
         self.pwm_adapters.remove(id);
         
         if self.default_serial.as_deref() == Some(id) {
-            self.default_serial = self.serial_adapters.keys().next().map(|s| s.clone());
+            self.default_serial = self.serial_adapters.iter().next().map(|s| s.key().clone());
         }
         if self.default_gpio.as_deref() == Some(id) {
-            self.default_gpio = self.gpio_adapters.keys().next().map(|s| s.clone());
+            self.default_gpio = self.gpio_adapters.iter().next().map(|s| s.key().clone());
         }
         if self.default_pwm.as_deref() == Some(id) {
-            self.default_pwm = self.pwm_adapters.keys().next().map(|s| s.clone());
+            self.default_pwm = self.pwm_adapters.iter().next().map(|s| s.key().clone());
         }
         
-        debug!("Unregistered adapter: {}", id);
-        true
+        info!("Unregistered adapter: {}", id);
+        Ok(())
     }
-
-    pub fn get(&self, id: &str) -> Option<Arc<dyn DeviceAdapter>> {
-        self.adapters.get(id).map(|r| r.clone())
+    
+    pub fn get_adapter(&self, id: &str) -> Option<Arc<dyn DeviceAdapter>> {
+        self.adapters.get(id).map(|entry| entry.value().clone())
     }
-
-    pub fn get_all(&self) -> Vec<Arc<dyn DeviceAdapter>> {
-        self.adapters.iter().map(|r| r.value().clone()).collect()
+    
+    pub fn get_serial_adapter(&self, id: &str) -> Option<Arc<dyn SerialAdapter>> {
+        self.serial_adapters.get(id).map(|entry| entry.value().clone())
     }
-
-    pub fn has_adapter(&self, id: &str) -> bool {
-        self.adapters.contains_key(id)
+    
+    pub fn get_gpio_adapter(&self, id: &str) -> Option<Arc<dyn GpioAdapter>> {
+        self.gpio_adapters.get(id).map(|entry| entry.value().clone())
     }
-
+    
+    pub fn get_pwm_adapter(&self, id: &str) -> Option<Arc<dyn PwmAdapter>> {
+        self.pwm_adapters.get(id).map(|entry| entry.value().clone())
+    }
+    
     pub fn get_default_serial(&self) -> Option<Arc<dyn SerialAdapter>> {
-        self.default_serial
-            .as_ref()
-            .and_then(|id| self.serial_adapters.get(id).map(|r| r.clone()))
+        self.default_serial.as_ref().and_then(|id| {
+            self.serial_adapters.get(id).map(|entry| entry.value().clone())
+        })
     }
-
+    
     pub fn get_default_gpio(&self) -> Option<Arc<dyn GpioAdapter>> {
-        self.default_gpio
-            .as_ref()
-            .and_then(|id| self.gpio_adapters.get(id).map(|r| r.clone()))
+        self.default_gpio.as_ref().and_then(|id| {
+            self.gpio_adapters.get(id).map(|entry| entry.value().clone())
+        })
     }
-
+    
     pub fn get_default_pwm(&self) -> Option<Arc<dyn PwmAdapter>> {
-        self.default_pwm
-            .as_ref()
-            .and_then(|id| self.pwm_adapters.get(id).map(|r| r.clone()))
+        self.default_pwm.as_ref().and_then(|id| {
+            self.pwm_adapters.get(id).map(|entry| entry.value().clone())
+        })
     }
-
-    pub fn set_default_serial(&mut self, id: &str) -> Result<(), RegistryError> {
+    
+    pub fn set_default_serial(&mut self, id: &str) -> AppResult<()> {
         if !self.serial_adapters.contains_key(id) {
-            return Err(RegistryError::NotFound(id.to_string()));
+            return Err(AppError::NotFound(format!("Serial adapter '{}' not found", id)));
         }
         self.default_serial = Some(id.to_string());
         Ok(())
     }
-
-    pub fn set_default_gpio(&mut self, id: &str) -> Result<(), RegistryError> {
+    
+    pub fn set_default_gpio(&mut self, id: &str) -> AppResult<()> {
         if !self.gpio_adapters.contains_key(id) {
-            return Err(RegistryError::NotFound(id.to_string()));
+            return Err(AppError::NotFound(format!("GPIO adapter '{}' not found", id)));
         }
         self.default_gpio = Some(id.to_string());
         Ok(())
     }
-
-    pub fn set_default_pwm(&mut self, id: &str) -> Result<(), RegistryError> {
+    
+    pub fn set_default_pwm(&mut self, id: &str) -> AppResult<()> {
         if !self.pwm_adapters.contains_key(id) {
-            return Err(RegistryError::NotFound(id.to_string()));
+            return Err(AppError::NotFound(format!("PWM adapter '{}' not found", id)));
         }
         self.default_pwm = Some(id.to_string());
         Ok(())
     }
-
-    pub async fn auto_detect(&self) -> Result<DeviceInfo, RegistryError> {
-        for adapter in self.adapters.iter() {
-            let adapter = adapter.value();
-            match adapter.health_check().await {
-                Ok(status) if status.is_healthy() => {
-                    info!("Auto-detected healthy adapter: {}", adapter.id());
-                    return Ok(DeviceInfo {
-                        id: adapter.id().to_string(),
-                        name: adapter.name().to_string(),
-                        capabilities: adapter.capabilities(),
-                        board_model: None,
-                        firmware_version: None,
-                    });
-                }
-                Ok(status) => {
-                    debug!("Adapter {} reported status: {:?}", adapter.id(), status.state);
-                }
-                Err(e) => {
-                    debug!("Adapter {} health check failed: {}", adapter.id(), e);
-                }
-            }
-        }
-        Err(RegistryError::NoHealthyAdapter)
+    
+    pub fn list_adapters(&self) -> Vec<String> {
+        self.adapters.iter().map(|entry| entry.key().clone()).collect()
     }
-
-    pub async fn auto_detect_serial(&self) -> Result<SerialPortInfo, RegistryError> {
-        let adapter = self.get_default_serial()
-            .ok_or_else(|| RegistryError::CapabilityNotSupported("Serial".to_string()))?;
-        
-        let ports = adapter.list_ports().await
-            .map_err(|e| RegistryError::CapabilityNotSupported(e.to_string()))?;
-        
-        ports.into_iter()
-            .next()
-            .ok_or_else(|| RegistryError::NotFound("No serial ports found".to_string()))
-    }
-
-    pub fn get_stats(&self) -> RegistryStats {
-        let mut adapter_states = HashMap::new();
-        let mut healthy_count = 0;
-        
-        for adapter in self.adapters.iter() {
-            let state = futures::executor::block_on(adapter.health_check())
-                .map(|h| h.is_healthy())
-                .unwrap_or(false);
-            adapter_states.insert(adapter.key().clone(), state);
-            if state {
-                healthy_count += 1;
-            }
-        }
-        
-        RegistryStats {
-            total_adapters: self.adapters.len(),
-            healthy_adapters: healthy_count,
-            adapter_states,
-        }
-    }
-
+    
     pub fn list_serial_adapters(&self) -> Vec<String> {
-        self.serial_adapters.keys().map(|s| s.clone()).collect()
+        self.serial_adapters.iter().map(|entry| entry.key().clone()).collect()
     }
-
+    
     pub fn list_gpio_adapters(&self) -> Vec<String> {
-        self.gpio_adapters.keys().map(|s| s.clone()).collect()
+        self.gpio_adapters.iter().map(|entry| entry.key().clone()).collect()
     }
-
+    
     pub fn list_pwm_adapters(&self) -> Vec<String> {
-        self.pwm_adapters.keys().map(|s| s.clone()).collect()
+        self.pwm_adapters.iter().map(|entry| entry.key().clone()).collect()
     }
 }

@@ -29,13 +29,8 @@ pub trait DeviceAdapter: Send + Sync {
     fn name(&self) -> &str;
     fn capabilities(&self) -> HashSet<DeviceCapability>;
     
-    async fn health_check(&self) -> AppResult<HealthStatus> {
-        Ok(HealthStatus {
-            name: self.id().to_string(),
-            state: HealthState::Healthy,
-            message: None,
-            latency_ms: None,
-        })
+    async fn health_check(&self) -> AppResult<ComponentHealth> {
+        Ok(ComponentHealth::healthy(self.id()))
     }
     
     async fn initialize(&self) -> AppResult<()> {
@@ -44,54 +39,6 @@ pub trait DeviceAdapter: Send + Sync {
     
     async fn shutdown(&self) -> AppResult<()> {
         Ok(())
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct HealthStatus {
-    pub name: String,
-    pub state: HealthState,
-    pub message: Option<String>,
-    pub latency_ms: Option<u64>,
-}
-
-impl HealthStatus {
-    pub fn healthy(name: impl Into<String>) -> Self {
-        Self {
-            name: name.into(),
-            state: HealthState::Healthy,
-            message: None,
-            latency_ms: None,
-        }
-    }
-    
-    pub fn degraded(name: impl Into<String>, message: impl Into<String>) -> Self {
-        Self {
-            name: name.into(),
-            state: HealthState::Degraded,
-            message: Some(message.into()),
-            latency_ms: None,
-        }
-    }
-    
-    pub fn unhealthy(name: impl Into<String>, message: impl Into<String>) -> Self {
-        Self {
-            name: name.into(),
-            state: HealthState::Unhealthy,
-            message: Some(message.into()),
-            latency_ms: None,
-        }
-    }
-    
-    #[inline]
-    pub fn is_healthy(&self) -> bool {
-        self.state == HealthState::Healthy
-    }
-    
-    #[inline]
-    pub fn with_latency(mut self, latency_ms: u64) -> Self {
-        self.latency_ms = Some(latency_ms);
-        self
     }
 }
 
@@ -146,13 +93,7 @@ impl Default for SerialConfig {
 
 #[derive(Debug, Clone)]
 pub struct SerialPortInfo {
-    pub port_name: String,
     pub port_type: String,
-    pub vid: Option<u16>,
-    pub pid: Option<u16>,
-    pub serial_number: Option<String>,
-    pub manufacturer: Option<String>,
-    pub product: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -171,6 +112,29 @@ pub struct PwmChannelInfo {
     pub enabled: bool,
     pub frequency_hz: Option<u32>,
     pub duty_cycle: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PwmConfig {
+    pub chip: u32,
+    pub channel: u32,
+    pub pin: u32,
+    pub frequency: f64,
+    pub duty_cycle: f64,
+    pub enabled: bool,
+}
+
+impl Default for PwmConfig {
+    fn default() -> Self {
+        Self {
+            chip: 0,
+            channel: 0,
+            pin: 0,
+            frequency: 1000.0,
+            duty_cycle: 50.0,
+            enabled: false,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -223,11 +187,11 @@ pub trait GpioAdapter: DeviceAdapter {
 pub trait PwmAdapter: DeviceAdapter {
     async fn list_channels(&self) -> AppResult<Vec<PwmChannelInfo>>;
     
-    async fn enable_channel(&self, channel: u32) -> AppResult<()>;
+    async fn configure(&self, config: PwmConfig) -> AppResult<()>;
     
-    async fn disable_channel(&self, channel: u32) -> AppResult<()>;
+    async fn enable_channel(&self, chip: u32, channel: u32, enabled: bool) -> AppResult<()>;
     
-    async fn set_frequency(&self, channel: u32, frequency_hz: u32) -> AppResult<()>;
+    async fn set_frequency(&self, chip: u32, channel: u32, frequency: f64) -> AppResult<()>;
     
-    async fn set_duty_cycle(&self, channel: u32, duty_percent: f64) -> AppResult<()>;
+    async fn set_duty_cycle(&self, chip: u32, channel: u32, duty_cycle: f64) -> AppResult<()>;
 }

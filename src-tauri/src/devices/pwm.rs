@@ -84,6 +84,15 @@ impl PwmDevice {
             .collect()
     }
     
+    pub fn get_channel_info(&self, chip: u32, channel: u32) -> AppResult<Option<PwmChannelInfo>> {
+        let channel_id = (chip << 16) | channel;
+        Ok(self.channels.get(&channel_id).map(PwmChannelInfo::from))
+    }
+    
+    pub fn configure_channel(&mut self, config: PwmConfig) -> AppResult<()> {
+        self.configure(config)
+    }
+    
     pub fn configure(&mut self, config: PwmConfig) -> AppResult<()> {
         let channel_id = (config.chip << 16) | config.channel;
         
@@ -102,6 +111,20 @@ impl PwmDevice {
         
         self.channels.insert(channel_id, config);
         debug!("PWM channel {} configured successfully", channel_id);
+        Ok(())
+    }
+    
+    pub fn unconfigure_channel(&mut self, chip: u32, channel: u32) -> AppResult<()> {
+        let channel_id = (chip << 16) | channel;
+        if self.channels.remove(&channel_id).is_none() {
+            return Err(AppError::Pwm(format!("Channel {} not configured", channel)));
+        }
+        
+        #[cfg(feature = "hardware-support")]
+        {
+            self.handles.remove(&channel_id);
+        }
+        
         Ok(())
     }
     
@@ -166,6 +189,14 @@ impl PwmDevice {
         }
         
         pwm.enabled = enabled;
+        Ok(())
+    }
+    
+    pub fn play_waveform(&mut self, chip: u32, channel: u32, _waveform_type: &str) -> AppResult<()> {
+        let channel_id = (chip << 16) | channel;
+        if !self.channels.contains_key(&channel_id) {
+            return Err(AppError::Pwm(format!("Channel {} not configured", channel)));
+        }
         Ok(())
     }
     

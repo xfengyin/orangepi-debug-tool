@@ -5,7 +5,7 @@ use parking_lot::Mutex;
 use crate::error::{AppError, AppResult};
 use super::traits::{SerialAdapter, SerialConfig, SerialHandle, DeviceAdapter, DeviceCapability, DeviceInfo, GpioAdapter, GpioDirection, GpioPull, GpioTrigger, GpioPinInfo, PwmAdapter, PwmConfig, PwmChannelInfo};
 use std::collections::HashSet;
-use crate::observability::health::{HealthStatus, HealthState};
+use crate::observability::health::ComponentHealth;
 
 pub struct MockAdapter {
     pub delay_ms: u64,
@@ -64,13 +64,8 @@ impl DeviceAdapter for MockAdapter {
         ].into_iter().collect()
     }
     
-    async fn health_check(&self) -> AppResult<HealthStatus> {
-        Ok(HealthStatus {
-            name: self.id().to_string(),
-            state: HealthState::Healthy,
-            message: Some("Mock adapter is healthy".to_string()),
-            latency_ms: Some(1),
-        })
+    async fn health_check(&self) -> AppResult<ComponentHealth> {
+        Ok(ComponentHealth::healthy(self.id()))
     }
 }
 
@@ -79,11 +74,9 @@ impl SerialAdapter for MockAdapter {
     async fn list_ports(&self) -> AppResult<Vec<super::traits::SerialPortInfo>> {
         Ok(vec![
             super::traits::SerialPortInfo {
-                name: "/dev/ttyUSB0".to_string(),
                 port_type: "USB".to_string(),
             },
             super::traits::SerialPortInfo {
-                name: "/dev/ttyUSB1".to_string(),
                 port_type: "USB".to_string(),
             },
         ])
@@ -101,7 +94,7 @@ impl SerialAdapter for MockAdapter {
         state.serial_buffer.clear();
         
         Ok(SerialHandle {
-            port_name: config.port_name.clone(),
+            port_name: config.port_name,
             config,
             #[cfg(feature = "hardware-support")]
             stream: unsafe { std::mem::zeroed() },
@@ -203,7 +196,7 @@ impl PwmAdapter for MockAdapter {
         Ok(())
     }
     
-    async fn enable(&self, _chip: u32, _channel: u32, _enabled: bool) -> AppResult<()> {
+    async fn enable_channel(&self, _chip: u32, _channel: u32, _enabled: bool) -> AppResult<()> {
         Ok(())
     }
 }
