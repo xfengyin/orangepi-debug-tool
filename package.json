@@ -35,10 +35,10 @@
     "postinstall": "cd src-tauri && cargo fetch"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.5.3",
-    "@tauri-apps/plugin-shell": "^1.0.0",
-    "@tauri-apps/plugin-fs": "^1.0.0",
-    "@tauri-apps/plugin-os": "^1.0.0",
+    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/plugin-shell": "^2.0.0",
+    "@tauri-apps/plugin-fs": "^2.0.0",
+    "@tauri-apps/plugin-os": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "zustand": "^4.5.2",
@@ -55,7 +55,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.5.11",
+    "@tauri-apps/cli": "^2.0.0",
     "@types/react": "^18.2.67",
     "@types/react-dom": "^18.2.22",
     "@types/lodash-es": "^4.17.12",
