@@ -1,35 +1,35 @@
 //! System command handlers
 
-use crate::commands::ApiResponse;
-use crate::state::{AppConfig, AppState};
+use crate::config::AppConfiguration;
+use crate::state::AppState;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
 /// Get application configuration
 #[tauri::command]
-pub async fn get_config(state: State<'_, AppState>) -> ApiResponse<AppConfig> {
-    ApiResponse::success(state.get_config())
+pub async fn get_config(state: State<'_, AppState>) -> Result<AppConfiguration, String> {
+    Ok(state.get_config())
 }
 
 /// Update application configuration
 #[tauri::command]
 pub async fn update_config(
-    config: AppConfig,
+    config: AppConfiguration,
     state: State<'_, AppState>,
-) -> ApiResponse<()> {
+) -> Result<(), String> {
     state.update_config(config);
-    ApiResponse::success(())
+    Ok(())
 }
 
 /// Get system information
 #[tauri::command]
-pub async fn get_system_info() -> ApiResponse<SystemInfo> {
+pub async fn get_system_info() -> Result<SystemInfo, String> {
     let info = SystemInfo {
         version: env!("CARGO_PKG_VERSION").to_string(),
         platform: std::env::consts::OS.to_string(),
         arch: std::env::consts::ARCH.to_string(),
     };
-    ApiResponse::success(info)
+    Ok(info)
 }
 
 /// System information
@@ -45,8 +45,7 @@ pub struct SystemInfo {
 
 /// Check if running on OrangePi
 #[tauri::command]
-pub async fn check_orangepi() -> ApiResponse<bool> {
-    // Check for OrangePi specific files
+pub async fn check_orangepi() -> Result<bool, String> {
     let is_orangepi = std::path::Path::new("/sys/firmware/devicetree/base/model")
         .exists() && {
         if let Ok(content) = std::fs::read_to_string("/sys/firmware/devicetree/base/model") {
@@ -56,16 +55,13 @@ pub async fn check_orangepi() -> ApiResponse<bool> {
         }
     };
     
-    ApiResponse::success(is_orangepi)
+    Ok(is_orangepi)
 }
 
 /// Open external link
 #[tauri::command]
-pub async fn open_link(url: String) -> ApiResponse<()> {
-    match open::that(&url) {
-        Ok(_) => ApiResponse::success(()),
-        Err(e) => ApiResponse::error(format!("Failed to open link: {}", e), None),
-    }
+pub async fn open_link(url: String) -> Result<(), String> {
+    open::that(&url).map_err(|e| format!("Failed to open link: {}", e))
 }
 
 /// Save log data
@@ -73,18 +69,11 @@ pub async fn open_link(url: String) -> ApiResponse<()> {
 pub async fn save_log(
     filename: String,
     data: String,
-) -> ApiResponse<()> {
+) -> Result<(), String> {
     use std::io::Write;
     
     let path = std::path::Path::new(&filename);
-    match std::fs::File::create(path) {
-        Ok(mut file) => {
-            if let Err(e) = file.write_all(data.as_bytes()) {
-                ApiResponse::error(format!("Failed to write log: {}", e), None)
-            } else {
-                ApiResponse::success(())
-            }
-        }
-        Err(e) => ApiResponse::error(format!("Failed to create file: {}", e), None),
-    }
+    let mut file = std::fs::File::create(path).map_err(|e| format!("Failed to create file: {}", e))?;
+    file.write_all(data.as_bytes()).map_err(|e| format!("Failed to write log: {}", e))?;
+    Ok(())
 }

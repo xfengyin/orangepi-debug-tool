@@ -10,7 +10,7 @@ pub struct MetricsCollector {
     registry: RwLock<Vec<MetricFamily>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Counter {
     value: AtomicU64,
     labels: HashMap<String, String>,
@@ -48,7 +48,7 @@ impl Default for Counter {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Gauge {
     value: AtomicU64,
     labels: HashMap<String, String>,
@@ -90,7 +90,7 @@ impl Default for Gauge {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Histogram {
     buckets: Vec<AtomicU64>,
     sum: AtomicU64,

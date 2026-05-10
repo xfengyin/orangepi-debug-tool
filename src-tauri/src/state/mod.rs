@@ -2,13 +2,12 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use parking_lot::RwLock;
 use crate::error::{AppError, AppResult};
-use crate::adapters::{DeviceAdapterRegistry, SerialAdapter, GpioAdapter, PwmAdapter};
+use crate::adapters::DeviceAdapterRegistry;
 use crate::config::{AppConfiguration, ConfigLoader};
-use crate::services::{ServiceManager, SerialService, GpioService, PwmService};
+use crate::services::ServiceManager;
 use crate::observability::{HealthChecker, MetricsCollector, AppTracer};
-use crate::devices::{SerialDevice, GpioDevice, PwmDevice};
-use tauri::Manager;
-use tracing::{info, error};
+use crate::devices::{GpioManager, PwmDevice, SerialManager};
+use tracing::info;
 
 pub mod config_store;
 pub mod device_store;
@@ -25,8 +24,8 @@ pub struct AppState {
     pub health_checker: Arc<HealthChecker>,
     pub metrics: Arc<MetricsCollector>,
     pub tracer: Arc<AppTracer>,
-    pub serial_manager: Arc<RwLock<Option<SerialDevice>>>,
-    pub gpio: Arc<RwLock<GpioDevice>>,
+    pub serial_manager: Arc<RwLock<Option<SerialManager>>>,
+    pub gpio: Arc<RwLock<GpioManager>>,
     pub pwm: Arc<RwLock<PwmDevice>>,
     pub device_manager: Arc<RwLock<Option<ServiceManager>>>,
 }
@@ -43,7 +42,7 @@ impl AppState {
         let tracer = Arc::new(AppTracer::new());
         
         let serial_manager = Arc::new(RwLock::new(None));
-        let gpio = Arc::new(RwLock::new(GpioDevice::new()));
+        let gpio = Arc::new(RwLock::new(GpioManager::new()));
         let pwm = Arc::new(RwLock::new(PwmDevice::new()));
         let device_manager = Arc::new(RwLock::new(None));
         
@@ -61,6 +60,14 @@ impl AppState {
             pwm,
             device_manager,
         })
+    }
+    
+    pub fn get_config(&self) -> AppConfiguration {
+        self.config.read().clone()
+    }
+    
+    pub fn update_config(&self, config: AppConfiguration) {
+        *self.config.write() = config;
     }
     
     pub async fn cleanup(&self) -> AppResult<()> {

@@ -3,12 +3,13 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{debug, error, info, warn};
+use notify::Watcher;
 
 use crate::error::{AppError, AppResult};
 
 use super::schema::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ConfigError {
     Io(String),
     Parse(String),

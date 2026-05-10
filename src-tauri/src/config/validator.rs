@@ -129,16 +129,14 @@ impl ConfigValidator {
     }
 
     pub fn validate_gpio_config(&self, config: &GpioDeviceConfig) -> Result<(), ConfigValidationError> {
-        if let Some(ref pull) = config.default_pull {
-            let valid_pulls: HashSet<&str> = ["none", "up", "down"].into_iter().collect();
-            if !valid_pulls.contains(pull.as_str()) {
-                return Err(ConfigValidationError::InvalidValue {
-                    field: "devices.gpio.default_pull".to_string(),
-                    message: "must be one of: none, up, down".to_string(),
-                });
-            }
+        let valid_pulls: HashSet<&str> = ["none", "up", "down"].into_iter().collect();
+        if !valid_pulls.contains(config.default_pull.as_str()) {
+            return Err(ConfigValidationError::InvalidValue {
+                field: "devices.gpio.default_pull".to_string(),
+                message: "must be one of: none, up, down".to_string(),
+            });
         }
-
+        
         for pin in &config.pin_definitions {
             if pin.gpio_number > 255 {
                 return Err(ConfigValidationError::InvalidValue {
@@ -147,7 +145,7 @@ impl ConfigValidator {
                 });
             }
         }
-
+        
         Ok(())
     }
 

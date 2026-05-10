@@ -2,9 +2,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use crate::error::{AppError, AppResult};
+use tracing::debug;
 
 #[cfg(feature = "hardware-support")]
-use gpio_cdev::{Chip, Line, Offset};
+use gpio_cdev::{Chip, Line};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PwmConfig {
@@ -65,7 +66,7 @@ pub struct PwmDevice {
 #[cfg(feature = "hardware-support")]
 struct PwmHandle {
     chip: String,
-    offset: Offset,
+    offset: u32,
 }
 
 impl PwmDevice {
@@ -99,11 +100,11 @@ impl PwmDevice {
         #[cfg(feature = "hardware-support")]
         {
             let chip_name = format!("/dev/pwmchip{}", config.chip);
-            if let Ok(chip) = Chip::new(&chip_name) {
-                let line = chip.get_line(config.pin as Offset)?;
+            if let Ok(mut chip) = Chip::new(&chip_name) {
+                let _line = chip.get_line(config.pin as u32)?;
                 self.handles.insert(channel_id, Arc::new(PwmHandle {
                     chip: chip_name,
-                    offset: config.pin as Offset,
+                    offset: config.pin,
                 }));
                 debug!("PWM chip {} line {} exported successfully", config.chip, config.pin);
             }
@@ -130,17 +131,14 @@ impl PwmDevice {
     
     pub fn set_frequency(&mut self, chip: u32, channel: u32, frequency: f64) -> AppResult<()> {
         let channel_id = (chip << 16) | channel;
-        let frequency_clone = frequency;
+        
+        #[cfg(feature = "hardware-support")]
+        let _ = self.set_period(chip, channel, frequency);
         
         let pwm = self
             .channels
             .get_mut(&channel_id)
             .ok_or_else(|| AppError::Pwm(format!("Channel {} not configured", channel)))?;
-        
-        #[cfg(feature = "hardware-support")]
-        {
-            let _ = self.set_period(chip, channel, frequency_clone);
-        }
         
         pwm.frequency = frequency;
         Ok(())
@@ -162,15 +160,13 @@ impl PwmDevice {
             pwm.frequency
         };
         
+        #[cfg(feature = "hardware-support")]
+        let _ = self.set_duty_cycle_ns(chip, channel, frequency, duty_cycle);
+        
         let pwm = self
             .channels
             .get_mut(&channel_id)
             .ok_or_else(|| AppError::Pwm(format!("Channel {} not configured", channel)))?;
-        
-        #[cfg(feature = "hardware-support")]
-        {
-            let _ = self.set_duty_cycle_ns(chip, channel, frequency, duty_cycle);
-        }
         
         pwm.duty_cycle = duty_cycle;
         Ok(())
@@ -178,15 +174,14 @@ impl PwmDevice {
     
     pub fn set_enabled(&mut self, chip: u32, channel: u32, enabled: bool) -> AppResult<()> {
         let channel_id = (chip << 16) | channel;
+        
+        #[cfg(feature = "hardware-support")]
+        let _ = self.enable(chip, channel, enabled);
+        
         let pwm = self
             .channels
             .get_mut(&channel_id)
             .ok_or_else(|| AppError::Pwm(format!("Channel {} not configured", channel)))?;
-        
-        #[cfg(feature = "hardware-support")]
-        {
-            let _ = self.enable(chip, channel, enabled);
-        }
         
         pwm.enabled = enabled;
         Ok(())

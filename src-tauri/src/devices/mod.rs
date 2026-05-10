@@ -8,9 +8,9 @@ use crate::{AppError, AppResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub use gpio::GpioDevice;
-pub use pwm::PwmDevice;
-pub use serial::SerialDevice;
+pub use gpio::{GpioManager, GpioConfig, GpioPinInfo, GpioEvent, GpioDirection, GpioPull, GpioTrigger, GpioInterruptConfig};
+pub use pwm::{PwmDevice, PwmConfig, PwmChannelInfo};
+pub use serial::{SerialManager, SerialConfig, SerialPortInfo, SerialPacket, SerialStats};
 
 /// Device information
 #[derive(Debug, Clone, Serialize, Deserialize)]

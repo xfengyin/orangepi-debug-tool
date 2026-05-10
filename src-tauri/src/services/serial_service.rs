@@ -282,7 +282,7 @@ impl SerialAdapterExt for Arc<dyn SerialAdapter> {
             #[cfg(feature = "hardware-support")]
             stream: unsafe { std::mem::zeroed() },
         };
-        SerialAdapter::write(self, &handle, data).await
+        (**self).write(&handle, data).await
     }
 
     async fn read_internal(&self, config: &SerialConfig, buffer: &mut [u8]) -> AppResult<usize> {
@@ -292,7 +292,7 @@ impl SerialAdapterExt for Arc<dyn SerialAdapter> {
             #[cfg(feature = "hardware-support")]
             stream: unsafe { std::mem::zeroed() },
         };
-        SerialAdapter::read(self, &handle, buffer).await
+        (**self).read(&handle, buffer).await
     }
 
     async fn set_baudrate_internal(&self, config: &SerialConfig, baudrate: u32) -> AppResult<()> {
@@ -302,6 +302,6 @@ impl SerialAdapterExt for Arc<dyn SerialAdapter> {
             #[cfg(feature = "hardware-support")]
             stream: unsafe { std::mem::zeroed() },
         };
-        SerialAdapter::set_baudrate(self, &handle, baudrate).await
+        (**self).set_baudrate(&handle, baudrate).await
     }
 }

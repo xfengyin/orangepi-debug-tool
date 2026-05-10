@@ -239,7 +239,7 @@ impl GpioManager {
     }
     
     /// Batch configure pins
-    pub fn batch_configure(&mut self, configs: Vec<GpioConfig>) -> AppResult<Vec<AppResult<()>>> {
+    pub fn batch_configure(&mut self, configs: Vec<GpioConfig>) -> Vec<AppResult<()>> {
         configs.into_iter().map(|c| self.configure_pin(c)).collect()
     }
     

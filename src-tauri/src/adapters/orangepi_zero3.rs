@@ -7,7 +7,7 @@ use tracing::{debug, info};
 use crate::error::{AppError, AppResult};
 
 use super::traits::*;
-use super::HealthStatus;
+use crate::observability::health::HealthStatus;
 
 #[derive(Debug)]
 pub struct OrangePiZero3Adapter {

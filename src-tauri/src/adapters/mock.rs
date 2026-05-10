@@ -94,7 +94,7 @@ impl SerialAdapter for MockAdapter {
         state.serial_buffer.clear();
         
         Ok(SerialHandle {
-            port_name: config.port_name,
+            port_name: config.port_name.clone(),
             config,
             #[cfg(feature = "hardware-support")]
             stream: unsafe { std::mem::zeroed() },

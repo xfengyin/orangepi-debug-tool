@@ -85,6 +85,26 @@ impl HealthStatus {
         }
     }
 
+    pub fn healthy(name: &str) -> Self {
+        let mut status = Self::new();
+        status.components.insert(name.to_string(), ComponentHealth::healthy(name));
+        status
+    }
+
+    pub fn degraded(name: &str, message: &str) -> Self {
+        let mut status = Self::new();
+        status.status = HealthState::Degraded;
+        status.components.insert(name.to_string(), ComponentHealth::degraded(name, message));
+        status
+    }
+
+    pub fn unhealthy(name: &str, message: &str) -> Self {
+        let mut status = Self::new();
+        status.status = HealthState::Unhealthy;
+        status.components.insert(name.to_string(), ComponentHealth::unhealthy(name, message));
+        status
+    }
+
     pub fn add_component(&mut self, component: ComponentHealth) {
         if component.status == HealthState::Unhealthy {
             self.status = HealthState::Unhealthy;
@@ -122,7 +142,6 @@ pub trait HealthCheck: Send + Sync {
     async fn check(&self) -> ComponentHealth;
 }
 
-#[derive(Debug)]
 pub struct HealthChecker {
     checks: Vec<Arc<dyn HealthCheck>>,
 }
@@ -133,30 +152,30 @@ impl HealthChecker {
             checks: Vec::new(),
         }
     }
-
+    
     pub fn register<H: HealthCheck + 'static>(&mut self, check: H) {
         self.checks.push(Arc::new(check));
     }
-
+    
     pub fn register_boxed(&mut self, check: Arc<dyn HealthCheck>) {
         self.checks.push(check);
     }
-
+    
     pub async fn check_all(&self) -> HealthStatus {
         let mut status = HealthStatus::new();
-
+        
         for check in &self.checks {
             let component_health = check.check().await;
             status.add_component(component_health);
         }
-
+        
         status
     }
-
+    
     pub fn list_checks(&self) -> Vec<String> {
         self.checks.iter().map(|c| c.name().to_string()).collect()
     }
-
+    
     pub fn unregister(&mut self, name: &str) -> bool {
         let original_len = self.checks.len();
         self.checks.retain(|c| c.name() != name);

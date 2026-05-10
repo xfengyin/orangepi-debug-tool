@@ -101,7 +101,7 @@ impl DeviceAdapterRegistry {
         Ok(())
     }
     
-    pub fn unregister(&self, id: &str) -> AppResult<()> {
+    pub fn unregister(&mut self, id: &str) -> AppResult<()> {
         if !self.adapters.contains_key(id) {
             return Err(AppError::NotFound(format!("Adapter '{}' not found", id)));
         }
