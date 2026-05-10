@@ -1,16 +1,16 @@
 //! PWM command handlers
 
 use crate::commands::{into_response, ApiResponse};
-use crate::devices::pwm::{PwmChannelInfo, PwmConfig, PwmWaveform};
+use crate::devices::pwm::{PwmChannelInfo, PwmConfig};
 use crate::state::AppState;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
 /// List available PWM channels
 #[tauri::command]
-pub async fn list_pwm_channels(state: State<'_, AppState>) -> ApiResponse<Vec<PwmChannelInfo>> {
+pub async fn list_pwm_channels(state: State<'_, AppState>) -> Result<Vec<PwmChannelInfo>, String> {
     let pwm = state.pwm.read();
-    into_response(pwm.list_channels())
+    Ok(pwm.list_channels())
 }
 
 /// Configure a PWM channel
@@ -18,11 +18,9 @@ pub async fn list_pwm_channels(state: State<'_, AppState>) -> ApiResponse<Vec<Pw
 pub async fn configure_pwm(
     config: PwmConfig,
     state: State<'_, AppState>,
-) -> ApiResponse<()> {
-    into_response(async {
-        let mut pwm = state.pwm.write();
-        pwm.configure_channel(config)
-    }())
+) -> Result<(), String> {
+    let mut pwm = state.pwm.write();
+    pwm.configure(config).map_err(|e| e.to_string())
 }
 
 /// Set PWM frequency
@@ -32,11 +30,9 @@ pub async fn set_pwm_frequency(
     channel: u32,
     frequency: f64,
     state: State<'_, AppState>,
-) -> ApiResponse<()> {
-    into_response(async {
-        let mut pwm = state.pwm.write();
-        pwm.set_frequency(chip, channel, frequency)
-    }())
+) -> Result<(), String> {
+    let mut pwm = state.pwm.write();
+    pwm.set_frequency(chip, channel, frequency).map_err(|e| e.to_string())
 }
 
 /// Set PWM duty cycle
@@ -46,11 +42,9 @@ pub async fn set_pwm_duty_cycle(
     channel: u32,
     duty_cycle: f64,
     state: State<'_, AppState>,
-) -> ApiResponse<()> {
-    into_response(async {
-        let mut pwm = state.pwm.write();
-        pwm.set_duty_cycle(chip, channel, duty_cycle)
-    }())
+) -> Result<(), String> {
+    let mut pwm = state.pwm.write();
+    pwm.set_duty_cycle(chip, channel, duty_cycle).map_err(|e| e.to_string())
 }
 
 /// Enable/disable PWM channel
@@ -60,11 +54,9 @@ pub async fn set_pwm_enabled(
     channel: u32,
     enabled: bool,
     state: State<'_, AppState>,
-) -> ApiResponse<()> {
-    into_response(async {
-        let mut pwm = state.pwm.write();
-        pwm.set_enabled(chip, channel, enabled)
-    }())
+) -> Result<(), String> {
+    let mut pwm = state.pwm.write();
+    pwm.set_enabled(chip, channel, enabled).map_err(|e| e.to_string())
 }
 
 /// Get PWM channel info
@@ -73,11 +65,9 @@ pub async fn get_pwm_info(
     chip: u32,
     channel: u32,
     state: State<'_, AppState>,
-) -> ApiResponse<PwmChannelInfo> {
-    into_response(async {
-        let pwm = state.pwm.read();
-        pwm.get_channel_info(chip, channel)
-    }())
+) -> Result<Option<PwmChannelInfo>, String> {
+    let pwm = state.pwm.read();
+    pwm.get_channel_info(chip, channel).map_err(|e| e.to_string())
 }
 
 /// Play a waveform pattern
@@ -85,13 +75,11 @@ pub async fn get_pwm_info(
 pub async fn play_pwm_waveform(
     chip: u32,
     channel: u32,
-    waveform: PwmWaveform,
+    waveform_type: String,
     state: State<'_, AppState>,
-) -> ApiResponse<()> {
-    into_response(async {
-        let mut pwm = state.pwm.write();
-        pwm.play_waveform(chip, channel, waveform).await
-    }.await)
+) -> Result<(), String> {
+    let mut pwm = state.pwm.write();
+    pwm.play_waveform(chip, channel, &waveform_type).map_err(|e| e.to_string())
 }
 
 /// Unconfigure a PWM channel
@@ -100,9 +88,7 @@ pub async fn unconfigure_pwm(
     chip: u32,
     channel: u32,
     state: State<'_, AppState>,
-) -> ApiResponse<()> {
-    into_response(async {
-        let mut pwm = state.pwm.write();
-        pwm.unconfigure_channel(chip, channel)
-    }())
+) -> Result<(), String> {
+    let mut pwm = state.pwm.write();
+    pwm.unconfigure_channel(chip, channel).map_err(|e| e.to_string())
 }
