@@ -1,0 +1,21 @@
+{
+  "name": "OrangePi Zero3",
+  "version": "1.5G",
+  "description": "OrangePi Zero3 1.5GB 开发板配置文件",
+  "gpio_pins": [
+    {"pin": 220, "name": "GPIO220", "mode": "output"},
+    {"pin": 221, "name": "GPIO221", "mode": "output"},
+    {"pin": 222, "name": "GPIO222", "mode": "input"},
+    {"pin": 223, "name": "GPIO223", "mode": "input"}
+  ],
+  "pwm_channels": [
+    {"channel": 0, "pin": 224, "frequency_range": "0-1MHz"},
+    {"channel": 1, "pin": 225, "frequency_range": "0-1MHz"}
+  ],
+  "serial_ports": [
+    "/dev/ttyS0",
+    "/dev/ttyS1",
+    "/dev/ttyS2",
+    "/dev/ttyS3"
+  ]
+}

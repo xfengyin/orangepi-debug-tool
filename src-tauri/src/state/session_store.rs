@@ -229,8 +229,10 @@ impl SessionStore {
     }
 
     pub fn get_session_stats(&self, session_id: &str) -> Option<SessionStats> {
-        let session = self.sessions.read().get(session_id)?;
-        let operations = self.operations.read().get(session_id)?;
+        let sessions_lock = self.sessions.read();
+        let session = sessions_lock.get(session_id)?;
+        let ops_lock = self.operations.read();
+        let operations = ops_lock.get(session_id)?;
         
         let total_duration: u64 = operations.iter().map(|op| op.duration_ms).sum();
         let successful = operations.iter().filter(|op| op.success).count() as u64;

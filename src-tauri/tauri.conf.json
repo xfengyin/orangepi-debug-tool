@@ -27,7 +27,6 @@
     "macOS": {
       "frameworks": [],
       "minimumSystemVersion": "10.13",
-      "license": "MIT",
       "entitlements": null
     },
     "windows": {
@@ -59,9 +58,6 @@
     },
     "os": {}
   },
-  "security": {
-    "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
-  },
   "app": {
     "windows": [
       {
@@ -83,9 +79,6 @@
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false
-    },
-    "security": {
-      "dangerousDisableAssetCspModification": false
     }
   }
 }

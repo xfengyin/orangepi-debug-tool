@@ -198,7 +198,8 @@ impl AppTracer {
         let mut spans = self.spans.write();
         
         if spans.len() >= self.max_spans {
-            spans.drain(0..spans.len() / 2);
+            let half_len = spans.len() / 2;
+            spans.drain(0..half_len);
         }
         
         spans.push(span);
