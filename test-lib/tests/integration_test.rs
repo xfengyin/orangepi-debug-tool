@@ -1,0 +1,1 @@
+../../src-tauri/tests/integration_test.rs

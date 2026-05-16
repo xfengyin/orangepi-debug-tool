@@ -1,0 +1,1 @@
+../../src-tauri/tests/adapters_test.rs

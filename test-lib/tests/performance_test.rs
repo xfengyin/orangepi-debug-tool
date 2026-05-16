@@ -1,0 +1,1 @@
+../../src-tauri/tests/performance_test.rs

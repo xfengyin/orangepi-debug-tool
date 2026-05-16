@@ -170,11 +170,6 @@ impl SerialAdapter for NativeSerialAdapter {
 
         Ok(bytes_written)
     }
-
-    async fn set_baudrate(&self, _handle: &SerialHandle, _baudrate: u32) -> SerialResult<()> {
-        warn!("set_baudrate not fully implemented for native adapter");
-        Ok(())
-    }
 }
 
 pub struct CircularBuffer {

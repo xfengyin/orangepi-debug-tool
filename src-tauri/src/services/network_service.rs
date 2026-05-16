@@ -244,7 +244,9 @@ impl NetworkService {
     pub async fn disconnect_udp(&self, id: &str) -> NetworkServiceResult<()> {
         let guard = self.udp_sessions.read().await;
         let session = guard.get(id).ok_or(NetworkServiceError::NotConnected)?;
-        let local_addr: SocketAddr = session.local_port.into();
+        let local_addr: SocketAddr = format!("0.0.0.0:{}", session.local_port)
+            .parse()
+            .unwrap_or_else(|_| "0.0.0.0:0".parse().unwrap());
         let remote_addr: SocketAddr = session.remote_addr.parse().unwrap_or_else(|_| "0.0.0.0:0".parse().unwrap());
         drop(guard);
         
@@ -266,7 +268,9 @@ impl NetworkService {
     pub async fn send_udp(&self, id: &str, data: &[u8]) -> NetworkServiceResult<()> {
         let guard = self.udp_sessions.read().await;
         let session = guard.get(id).ok_or(NetworkServiceError::NotConnected)?;
-        let local_addr: SocketAddr = session.local_port.into();
+        let local_addr: SocketAddr = format!("0.0.0.0:{}", session.local_port)
+            .parse()
+            .unwrap_or_else(|_| "0.0.0.0:0".parse().unwrap());
         let remote_addr: SocketAddr = session.remote_addr.parse().unwrap_or_else(|_| "0.0.0.0:0".parse().unwrap());
         let remote_str = session.remote_addr.clone();
         drop(guard);
@@ -290,7 +294,9 @@ impl NetworkService {
     pub async fn receive_udp(&self, id: &str, buffer: &mut [u8]) -> NetworkServiceResult<(usize, String)> {
         let guard = self.udp_sessions.read().await;
         let session = guard.get(id).ok_or(NetworkServiceError::NotConnected)?;
-        let local_addr: SocketAddr = session.local_port.into();
+        let local_addr: SocketAddr = format!("0.0.0.0:{}", session.local_port)
+            .parse()
+            .unwrap_or_else(|_| "0.0.0.0:0".parse().unwrap());
         let remote_addr: SocketAddr = session.remote_addr.parse().unwrap_or_else(|_| "0.0.0.0:0".parse().unwrap());
         drop(guard);
 

@@ -1,11 +1,29 @@
+#[cfg(feature = "native-serial")]
 pub mod native;
 
+#[cfg(feature = "native-serial")]
 pub use native::NativeSerialAdapter;
+
+pub mod buffer;
+pub use buffer::CircularBuffer;
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use crate::adapters::network::DeviceError;
-use crate::adapters::network::DeviceResult;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum SerialError {
+    #[error("Not connected")]
+    NotConnected,
+    #[error("Connection failed: {0}")]
+    ConnectionFailed(String),
+    #[error("Read error: {0}")]
+    ReadError(String),
+    #[error("Write error: {0}")]
+    WriteError(String),
+}
+
+pub type SerialResult<T> = Result<T, SerialError>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SerialPortInfo {
@@ -15,6 +33,7 @@ pub struct SerialPortInfo {
     pub serial_number: Option<String>,
     pub product_identifier: Option<u16>,
     pub vendor_identifier: Option<u16>,
+    pub baudrate: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -45,11 +64,22 @@ pub struct SerialHandle {
     pub config: SerialConfig,
 }
 
+impl SerialHandle {
+    pub fn new(id: String, config: SerialConfig) -> Self {
+        Self {
+            id,
+            port_name: config.port_name.clone(),
+            config,
+        }
+    }
+}
+
 #[async_trait]
 pub trait SerialAdapter: Send + Sync {
-    async fn list_ports(&self) -> DeviceResult<Vec<SerialPortInfo>>;
-    async fn connect(&self, config: &SerialConfig) -> DeviceResult<SerialHandle>;
-    async fn disconnect(&self, handle: &SerialHandle) -> DeviceResult<()>;
-    async fn read(&self, handle: &SerialHandle, buffer: &mut [u8]) -> DeviceResult<usize>;
-    async fn write(&self, handle: &SerialHandle, data: &[u8]) -> DeviceResult<usize>;
+    fn id(&self) -> &'static str;
+    async fn list_ports(&self) -> SerialResult<Vec<SerialPortInfo>>;
+    async fn connect(&self, config: &SerialConfig) -> SerialResult<SerialHandle>;
+    async fn disconnect(&self, handle: &SerialHandle) -> SerialResult<()>;
+    async fn read(&self, handle: &SerialHandle, buffer: &mut [u8]) -> SerialResult<usize>;
+    async fn write(&self, handle: &SerialHandle, data: &[u8]) -> SerialResult<usize>;
 }
