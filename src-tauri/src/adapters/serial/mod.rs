@@ -1,10 +1,7 @@
-#[cfg(feature = "native-serial")]
 pub mod native;
-
-#[cfg(feature = "native-serial")]
-pub use native::NativeSerialAdapter;
-
 pub mod buffer;
+
+pub use native::NativeSerialAdapter;
 pub use buffer::CircularBuffer;
 
 use async_trait::async_trait;

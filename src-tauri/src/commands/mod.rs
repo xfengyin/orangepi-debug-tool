@@ -1,7 +1,26 @@
-pub mod serial_commands;
-pub mod network_commands;
-pub mod log_commands;
+use serde::{Deserialize, Serialize};
 
-pub use serial_commands::*;
-pub use network_commands::*;
-pub use log_commands::*;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CommandResult<T> {
+    pub success: bool,
+    pub data: Option<T>,
+    pub error: Option<String>,
+}
+
+impl<T> CommandResult<T> {
+    pub fn ok(data: T) -> Self {
+        Self {
+            success: true,
+            data: Some(data),
+            error: None,
+        }
+    }
+    
+    pub fn err(message: String) -> Self {
+        Self {
+            success: false,
+            data: None,
+            error: Some(message),
+        }
+    }
+}
