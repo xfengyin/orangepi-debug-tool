@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, memo } from 'react';
 import { Box, Paper } from '@mui/material';
-import { useSerialStore, useAppStore } from '../../stores';
+import { useSerialStore, useLogStore } from '../../stores';
 
 const SerialTerminal: React.FC = memo(() => {
   const { dataBuffer, status } = useSerialStore();
-  const { isAutoScroll } = useAppStore();
+  const { isAutoScroll } = useLogStore();
   const terminalRef = useRef<HTMLDivElement>(null);
 
   // Auto scroll to bottom

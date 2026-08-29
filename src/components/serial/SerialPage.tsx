@@ -11,28 +11,22 @@ import {
   MenuItem,
   TextField,
   Button,
-  ButtonGroup,
   IconButton,
-  Divider,
-  Chip,
   Tooltip,
   ToggleButton,
   ToggleButtonGroup,
-  Paper,
 } from '@mui/material';
 import {
   Usb as UsbIcon,
   UsbOff as UsbOffIcon,
   Send as SendIcon,
   Clear as ClearIcon,
-  Save as SaveIcon,
-  PlayArrow as PlayIcon,
   Hexagon as HexIcon,
   TextFields as TextIcon,
   Refresh as RefreshIcon,
   AutoFixHigh as AutoIcon,
 } from '@mui/icons-material';
-import { useSerialStore, useLogStore, useAppStore } from '../../stores';
+import { useSerialStore, useAppStore } from '../../stores';
 import SerialTerminal from './SerialTerminal';
 import SerialChart from './SerialChart';
 import CommandPanel from './CommandPanel';

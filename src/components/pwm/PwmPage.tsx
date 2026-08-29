@@ -8,7 +8,6 @@ import {
   Slider,
   Button,
   Switch,
-  TextField,
 } from '@mui/material';
 import { usePwmStore, useAppStore } from '../../stores';
 

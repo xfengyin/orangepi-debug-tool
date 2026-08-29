@@ -139,6 +139,7 @@ export interface SystemInfo {
   version: string;
   platform: string;
   arch: string;
+  hostname?: string;
 }
 
 // ==================== API Types ====================

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import type { AppConfig, SystemInfo, ViewType, ApiResponse, ToastMessage } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 

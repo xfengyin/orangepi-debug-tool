@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import type {
   GpioConfig,
   GpioPinInfo,
@@ -26,7 +26,7 @@ interface GpioState {
   unconfigurePin: (pin: number) => Promise<boolean>;
 }
 
-export const useGpioStore = create<GpioState>((set, get) => ({
+export const useGpioStore = create<GpioState>((set) => ({
   pins: [],
   pinStates: new Map(),
   isLoading: false,

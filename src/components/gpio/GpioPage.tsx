@@ -5,7 +5,6 @@ import {
   CardContent,
   Typography,
   Grid,
-  Button,
   Switch,
   Chip,
 } from '@mui/material';
@@ -23,7 +22,7 @@ const pinDefinitions = [
 ];
 
 const GpioPage: React.FC = memo(() => {
-  const { pins, isLoading, refreshPins, readPin, writePin, togglePin } = useGpioStore();
+  const { isLoading, refreshPins, togglePin } = useGpioStore();
   const { addToast } = useAppStore();
 
   useEffect(() => {
