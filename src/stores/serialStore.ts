@@ -108,7 +108,7 @@ export const useSerialStore = create<SerialState>()(
                 config: { ...state.config, port_name: response.data! },
               }));
             }
-            return response.data;
+            return response.data ?? null;
           }
           return null;
         } catch (err) {

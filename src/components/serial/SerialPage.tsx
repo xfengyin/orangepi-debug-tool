@@ -26,7 +26,7 @@ import {
   Refresh as RefreshIcon,
   AutoFixHigh as AutoIcon,
 } from '@mui/icons-material';
-import { useSerialStore, useAppStore } from '../../stores';
+import { useSerialStore, useLogStore, useAppStore } from '../../stores';
 import SerialTerminal from './SerialTerminal';
 import SerialChart from './SerialChart';
 import CommandPanel from './CommandPanel';
@@ -51,7 +51,8 @@ const SerialPage: React.FC = memo(() => {
     disconnect,
     clearData,
   } = useSerialStore();
-  const { addLog, addToast } = useAppStore();
+  const { addToast } = useAppStore();
+  const { addLog } = useLogStore();
   const [inputMode, setInputMode] = useState<'text' | 'hex'>('text');
   const [inputText, setInputText] = useState('');
   const [showChart, setShowChart] = useState(false);
