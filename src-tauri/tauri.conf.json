@@ -1,7 +1,7 @@
 {
   "$schema": "https://tauri.app/schema.json",
   "productName": "OrangePi Debug Tool",
-  "version": "2.1.9",
+  "version": "2.2.0",
   "identifier": "com.orangepi.debug-tool",
   "build": {
     "beforeDevCommand": "npm run dev",

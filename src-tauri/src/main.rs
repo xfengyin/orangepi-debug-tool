@@ -4,25 +4,22 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use orangepi_debug_tool::{cleanup_app, initialize_app};
+use orangepi_debug_tool::initialize_app;
 use tauri::Manager;
-use tracing::info;
 
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
             // Initialize application
-            let app_handle = app.handle();
-            tauri::async_runtime::block_on(async move {
-                if let Err(e) = initialize_app(&app_handle).await {
-                    eprintln!("Failed to initialize app: {}", e);
-                }
-            });
+            let result = tauri::async_runtime::block_on(initialize_app(app));
+            if let Err(e) = result {
+                eprintln!("Failed to initialize app: {}", e);
+            }
             Ok(())
         })
-        .on_window_event(|event| match event.event() {
+        .on_window_event(|window, event| match event.event() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
-                event.window().hide().unwrap();
+                let _ = window.hide();
                 api.prevent_close();
             }
             _ => {}
