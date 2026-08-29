@@ -152,7 +152,7 @@ export interface ApiResponse<T> {
 
 // ==================== UI Types ====================
 
-export type ViewType = 'serial' | 'gpio' | 'pwm' | 'log' | 'settings';
+export type ViewType = 'overview' | 'serial' | 'gpio' | 'pwm' | 'log' | 'settings';
 
 export interface ThemeColors {
   primary: string;

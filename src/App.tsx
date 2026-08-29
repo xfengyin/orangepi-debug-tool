@@ -3,10 +3,12 @@ import { Box, ThemeProvider, CssBaseline, Snackbar, Alert } from '@mui/material'
 import { useThemeStore, useAppStore, useLogStore } from './stores';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
+import OverviewPage from './components/overview/OverviewPage';
 import SerialPage from './components/serial/SerialPage';
 import GpioPage from './components/gpio/GpioPage';
 import PwmPage from './components/pwm/PwmPage';
 import LogPage from './components/log/LogPage';
+import SettingsPage from './components/settings/SettingsPage';
 import { useSerialStore } from './stores/serialStore';
 
 const App: React.FC = () => {
@@ -57,6 +59,8 @@ const App: React.FC = () => {
   // Render current page
   const renderPage = useCallback(() => {
     switch (currentView) {
+      case 'overview':
+        return <OverviewPage />;
       case 'serial':
         return <SerialPage />;
       case 'gpio':
@@ -65,6 +69,8 @@ const App: React.FC = () => {
         return <PwmPage />;
       case 'log':
         return <LogPage />;
+      case 'settings':
+        return <SettingsPage />;
       default:
         return <SerialPage />;
     }

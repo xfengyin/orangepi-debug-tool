@@ -12,6 +12,7 @@ import {
   Chip,
 } from '@mui/material';
 import {
+  Terminal as TerminalIcon,
   Usb as UsbIcon,
   SettingsInputComponent as GpioIcon,
   Waves as PwmIcon,
@@ -29,10 +30,12 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
+  { id: 'overview', label: '概览', icon: <TerminalIcon /> },
   { id: 'serial', label: '串口调试', icon: <UsbIcon /> },
   { id: 'gpio', label: 'GPIO控制', icon: <GpioIcon /> },
   { id: 'pwm', label: 'PWM输出', icon: <PwmIcon /> },
   { id: 'log', label: '数据日志', icon: <LogIcon /> },
+  { id: 'settings', label: '设置', icon: <SettingsIcon /> },
 ];
 
 const Sidebar: React.FC = memo(() => {
