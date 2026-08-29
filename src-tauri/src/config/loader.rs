@@ -145,7 +145,7 @@ impl ConfigLoader {
         let cache = Arc::new(RwLock::new(self.cache.read().clone()));
 
         std::thread::spawn(move || {
-            let mut watcher = match notify::recommended_watcher(move |res: Result<_, notify::Error>| {
+            let mut watcher = match notify::recommended_watcher(move |res: Result<notify::Event, notify::Error>| {
                 if let Ok(event) = res {
                     if event.kind.is_modify() {
                         debug!("Config file changed: {:?}", event);

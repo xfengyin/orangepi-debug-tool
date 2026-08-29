@@ -1,6 +1,6 @@
 [package]
 name = "orangepi-debug-tool"
-version = "2.1.7"
+version = "2.1.8"
 description = "OrangePi Debug Tool - A comprehensive debugging utility for OrangePi devices"
 authors = ["OrangePi Team"]
 license = "MIT"
@@ -91,7 +91,7 @@ serial_test = "3.0"
 criterion = { version = "0.5", features = ["async_tokio"] }
 
 [features]
-default = ["hardware-support"]
+default = []
 hardware-support = ["gpio-cdev"]
 mock-hardware = []
 updater = ["reqwest"]

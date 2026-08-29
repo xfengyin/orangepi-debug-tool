@@ -31,9 +31,9 @@ impl GenericLinuxAdapter {
 
     fn detect_gpio_driver(&self) -> Option<String> {
         if Path::new("/dev/gpiochip0").exists() {
-            Some("gpio-cdev".to_string());
+            Some("gpio-cdev".to_string())
         } else if Path::new(&self.sysfs_gpio_path).exists() {
-            Some("sysfs".to_string());
+            Some("sysfs".to_string())
         } else {
             None
         }
@@ -41,7 +41,7 @@ impl GenericLinuxAdapter {
 
     fn detect_pwm_driver(&self) -> Option<String> {
         if Path::new(&self.sysfs_pwm_path).exists() {
-            Some("sysfs".to_string());
+            Some("sysfs".to_string())
         } else {
             None
         }

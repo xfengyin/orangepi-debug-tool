@@ -17,7 +17,7 @@ pub fn create_default_registry() -> DeviceAdapterRegistry {
 pub fn create_with_adapters() -> DeviceAdapterRegistry {
     let mut registry = DeviceAdapterRegistry::new();
     
-    let mock = Arc::new(mock::MockAdapter::new());
+    let mock = Arc::new(mock::MockAdapter::new(0, 0.0));
     registry.register_serial(mock.clone());
     registry.register_gpio(mock.clone());
     registry.register_pwm(mock.clone());

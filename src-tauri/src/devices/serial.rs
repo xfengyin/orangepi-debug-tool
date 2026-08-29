@@ -2,7 +2,6 @@
 
 use crate::{AppError, AppResult};
 use bytes::BytesMut;
-use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;
