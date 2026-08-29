@@ -62,6 +62,10 @@ pub enum AppError {
     #[error("Circuit breaker open: {0}")]
     CircuitBreakerOpen(String),
     
+    /// Invalid state errors (code: 13001-13999)
+    #[error("Invalid state: {0}")]
+    InvalidState(String),
+    
     /// Internal errors (code: 99999)
     #[error("Internal error: {0}")]
     Internal(String),
@@ -84,6 +88,7 @@ impl AppError {
             AppError::PermissionDenied(msg) => format!("权限不足: {}", msg),
             AppError::Timeout(msg) => format!("操作超时: {}", msg),
             AppError::CircuitBreakerOpen(msg) => format!("服务熔断: {}", msg),
+            AppError::InvalidState(msg) => format!("状态异常: {}", msg),
             AppError::Internal(msg) => format!("内部错误: {}", msg),
         }
     }
@@ -104,6 +109,7 @@ impl AppError {
             AppError::PermissionDenied(_) => "PERMISSION_DENIED",
             AppError::Timeout(_) => "TIMEOUT",
             AppError::CircuitBreakerOpen(_) => "CIRCUIT_BREAKER_OPEN",
+            AppError::InvalidState(_) => "INVALID_STATE",
             AppError::Internal(_) => "INTERNAL_ERROR",
         }
     }
@@ -124,6 +130,7 @@ impl AppError {
             AppError::PermissionDenied(_) => 10001,
             AppError::Timeout(_) => 11001,
             AppError::CircuitBreakerOpen(_) => 12001,
+            AppError::InvalidState(_) => 13001,
             AppError::Internal(_) => 99999,
         }
     }
@@ -406,10 +413,11 @@ impl RetryHandler {
         F: std::future::Future<Output = Result<T, E>>,
         E: std::fmt::Debug,
     {
+        let mut operation = std::pin::pin!(operation);
         let mut delay = self.initial_delay_ms;
         
         for attempt in 1..=self.max_attempts {
-            match operation.await {
+            match operation.as_mut().await {
                 Ok(result) => return Ok(result),
                 Err(e) if attempt < self.max_attempts => {
                     tokio::time::sleep(tokio::time::Duration::from_millis(delay)).await;

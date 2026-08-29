@@ -19,13 +19,26 @@ pub fn create_with_adapters() -> DeviceAdapterRegistry {
     
     #[cfg(feature = "hardware-support")]
     {
-        registry.register(Arc::new(orangepi_zero3::OrangePiZero3Adapter::new()));
-        registry.register(Arc::new(generic_linux::GenericLinuxAdapter::new()));
+        let zero3 = Arc::new(orangepi_zero3::OrangePiZero3Adapter::new());
+        registry.register(zero3.clone());
+        registry.register_serial(zero3.clone());
+        registry.register_gpio(zero3.clone());
+        registry.register_pwm(zero3.clone());
+
+        let linux = Arc::new(generic_linux::GenericLinuxAdapter::new());
+        registry.register(linux.clone());
+        registry.register_serial(linux.clone());
+        registry.register_gpio(linux.clone());
+        registry.register_pwm(linux.clone());
     }
     
     #[cfg(not(feature = "hardware-support"))]
     {
-        registry.register(Arc::new(mock::MockAdapter::new()));
+        let mock = Arc::new(mock::MockAdapter::new());
+        registry.register(mock.clone());
+        registry.register_serial(mock.clone());
+        registry.register_gpio(mock.clone());
+        registry.register_pwm(mock.clone());
     }
     
     registry

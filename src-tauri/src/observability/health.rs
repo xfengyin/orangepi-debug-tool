@@ -202,6 +202,7 @@ impl LivenessChecker {
     }
 }
 
+#[async_trait]
 impl HealthCheck for LivenessChecker {
     fn name(&self) -> &str {
         "liveness"

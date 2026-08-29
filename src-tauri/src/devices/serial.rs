@@ -4,9 +4,10 @@ use crate::{AppError, AppResult};
 use bytes::BytesMut;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::{mpsc, oneshot, Mutex};
 use tokio::time::timeout;
 use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialStream, StopBits};
 use tracing::{debug, error, info, warn};
@@ -81,7 +82,7 @@ pub struct SerialPacket {
 /// Serial port manager
 pub struct SerialManager {
     config: Option<SerialConfig>,
-    port: Option<SerialStream>,
+    port: Option<Arc<Mutex<SerialStream>>>,
     data_tx: Option<mpsc::Sender<SerialPacket>>,
     command_tx: Option<mpsc::Sender<SerialCommand>>,
     is_connected: bool,
@@ -231,7 +232,8 @@ impl SerialManager {
         let (command_tx, mut command_rx) = mpsc::channel::<SerialCommand>(100);
         
         // Start background task
-        let port_clone = port.try_clone().map_err(|e| AppError::Serial(e.to_string()))?;
+        let port = Arc::new(Mutex::new(port));
+        let port_clone = Arc::clone(&port);
         let data_tx_clone = data_tx.clone();
         
         tokio::spawn(async move {
@@ -322,7 +324,7 @@ impl SerialManager {
     
     /// Background task for serial I/O
     async fn serial_task(
-        mut port: SerialStream,
+        port: Arc<Mutex<SerialStream>>,
         data_tx: Option<mpsc::Sender<SerialPacket>>,
         command_rx: &mut mpsc::Receiver<SerialCommand>,
     ) {
@@ -331,7 +333,10 @@ impl SerialManager {
         loop {
             tokio::select! {
                 // Read from serial port
-                result = port.read_buf(&mut buffer) => {
+                result = async {
+                    let mut port = port.lock().await;
+                    port.read_buf(&mut buffer).await
+                } => {
                     match result {
                         Ok(n) if n > 0 => {
                             let data = buffer.split_to(n).freeze().to_vec();
@@ -356,6 +361,7 @@ impl SerialManager {
                 Some(cmd) = command_rx.recv() => {
                     match cmd {
                         SerialCommand::Write(data, resp_tx) => {
+                            let mut port = port.lock().await;
                             let result = port.write_all(&data).await
                                 .map(|_| data.len())
                                 .map_err(|e| AppError::Io(e.to_string()));

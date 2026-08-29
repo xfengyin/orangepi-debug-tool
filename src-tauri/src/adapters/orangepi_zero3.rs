@@ -7,7 +7,7 @@ use tracing::{debug, info};
 use crate::error::{AppError, AppResult};
 
 use super::traits::*;
-use crate::observability::health::HealthStatus;
+use crate::observability::health::ComponentHealth;
 
 #[derive(Debug)]
 pub struct OrangePiZero3Adapter {
@@ -89,25 +89,25 @@ impl DeviceAdapter for OrangePiZero3Adapter {
         caps
     }
 
-    async fn health_check(&self) -> AppResult<HealthStatus> {
+    async fn health_check(&self) -> AppResult<ComponentHealth> {
         let start = Instant::now();
         
         #[cfg(feature = "hardware-support")]
         {
             let gpio_path = "/dev/gpiochip0";
             if !std::path::Path::new(gpio_path).exists() {
-                return Ok(HealthStatus::degraded(self.id(), "GPIO device not found")
+                return Ok(ComponentHealth::degraded(self.id(), "GPIO device not found")
                     .with_latency(start.elapsed().as_millis() as u64));
             }
             
             let pwm_path = "/sys/class/pwm/pwmchip0";
             if !std::path::Path::new(pwm_path).exists() {
-                return Ok(HealthStatus::degraded(self.id(), "PWM device not found")
+                return Ok(ComponentHealth::degraded(self.id(), "PWM device not found")
                     .with_latency(start.elapsed().as_millis() as u64));
             }
         }
         
-        Ok(HealthStatus::healthy(self.id())
+        Ok(ComponentHealth::healthy(self.id())
             .with_latency(start.elapsed().as_millis() as u64))
     }
 

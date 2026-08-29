@@ -34,7 +34,7 @@ impl AppState {
     pub async fn new(app: &tauri::App) -> AppResult<Self> {
         info!("Initializing application state");
         
-        let config = ConfigLoader::load()?;
+        let config = ConfigLoader::new("config/config.yaml").load().await.map_err(|e| AppError::Config(e.to_string()))?;
         let device_registry = DeviceAdapterRegistry::new();
         
         let health_checker = Arc::new(HealthChecker::new());

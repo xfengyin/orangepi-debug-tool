@@ -74,31 +74,33 @@ impl DeviceAdapterRegistry {
             )));
         }
         
-        self.adapters.insert(id.to_string(), adapter.clone());
-        
-        if let Some(serial) = Arc::downcast::<dyn SerialAdapter>(adapter.clone()).ok() {
-            self.serial_adapters.insert(id.to_string(), serial);
-            if self.default_serial.is_none() {
-                self.default_serial = Some(id.to_string());
-            }
-        }
-        
-        if let Some(gpio) = Arc::downcast::<dyn GpioAdapter>(adapter.clone()).ok() {
-            self.gpio_adapters.insert(id.to_string(), gpio);
-            if self.default_gpio.is_none() {
-                self.default_gpio = Some(id.to_string());
-            }
-        }
-        
-        if let Some(pwm) = Arc::downcast::<dyn PwmAdapter>(adapter.clone()).ok() {
-            self.pwm_adapters.insert(id.to_string(), pwm);
-            if self.default_pwm.is_none() {
-                self.default_pwm = Some(id.to_string());
-            }
-        }
-        
+        self.adapters.insert(id.to_string(), adapter);
         info!("Registered adapter: {}", id);
         Ok(())
+    }
+
+    pub fn register_serial(&self, adapter: Arc<dyn SerialAdapter>) {
+        let id = adapter.id().to_string();
+        if self.default_serial.is_none() {
+            self.default_serial = Some(id.clone());
+        }
+        self.serial_adapters.insert(id, adapter);
+    }
+
+    pub fn register_gpio(&self, adapter: Arc<dyn GpioAdapter>) {
+        let id = adapter.id().to_string();
+        if self.default_gpio.is_none() {
+            self.default_gpio = Some(id.clone());
+        }
+        self.gpio_adapters.insert(id, adapter);
+    }
+
+    pub fn register_pwm(&self, adapter: Arc<dyn PwmAdapter>) {
+        let id = adapter.id().to_string();
+        if self.default_pwm.is_none() {
+            self.default_pwm = Some(id.clone());
+        }
+        self.pwm_adapters.insert(id, adapter);
     }
     
     pub fn unregister(&mut self, id: &str) -> AppResult<()> {

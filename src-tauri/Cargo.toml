@@ -1,6 +1,6 @@
 [package]
 name = "orangepi-debug-tool"
-version = "2.1.5"
+version = "2.1.6"
 description = "OrangePi Debug Tool - A comprehensive debugging utility for OrangePi devices"
 authors = ["OrangePi Team"]
 license = "MIT"
@@ -36,6 +36,7 @@ tauri-plugin-os = "2.0"
 
 # Async Runtime
 tokio = { version = "1.36", features = ["full", "parking_lot"] }
+open = "5"
 tokio-serial = "5.4"
 tokio-util = { version = "0.7", features = ["codec", "io"] }
 

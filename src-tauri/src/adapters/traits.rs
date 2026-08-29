@@ -93,6 +93,7 @@ impl Default for SerialConfig {
 
 #[derive(Debug, Clone)]
 pub struct SerialPortInfo {
+    pub port_name: String,
     pub port_type: String,
 }
 
@@ -137,7 +138,7 @@ impl Default for PwmConfig {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct SerialHandle {
     pub port_name: String,
     pub config: SerialConfig,

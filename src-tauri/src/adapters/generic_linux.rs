@@ -7,7 +7,7 @@ use tracing::{debug, warn};
 use crate::error::{AppError, AppResult};
 
 use super::traits::*;
-use crate::observability::health::HealthStatus;
+use crate::observability::health::ComponentHealth;
 
 #[derive(Debug)]
 pub struct GenericLinuxAdapter {
@@ -79,7 +79,7 @@ impl DeviceAdapter for GenericLinuxAdapter {
         caps
     }
 
-    async fn health_check(&self) -> AppResult<HealthStatus> {
+    async fn health_check(&self) -> AppResult<ComponentHealth> {
         let start = Instant::now();
         
         let gpio_driver = self.detect_gpio_driver();
@@ -90,7 +90,7 @@ impl DeviceAdapter for GenericLinuxAdapter {
             (Some(g), None) => format!("GPIO: {} (PWM not available)", g),
             (None, Some(p)) => format!("PWM: {} (GPIO not available)", p),
             (None, None) => {
-                return Ok(HealthStatus::unhealthy(self.id(), "No hardware devices detected")
+                return Ok(ComponentHealth::unhealthy(self.id(), "No hardware devices detected")
                     .with_latency(start.elapsed().as_millis() as u64));
             }
         };
@@ -100,10 +100,10 @@ impl DeviceAdapter for GenericLinuxAdapter {
             .unwrap_or(false);
         
         if has_serial {
-            Ok(HealthStatus::healthy(self.id())
+            Ok(ComponentHealth::healthy(self.id())
                 .with_latency(start.elapsed().as_millis() as u64))
         } else {
-            Ok(HealthStatus::degraded(self.id(), "Serial ports not available")
+            Ok(ComponentHealth::degraded(self.id(), "Serial ports not available")
                 .with_latency(start.elapsed().as_millis() as u64))
         }
     }

@@ -10,7 +10,7 @@ use tauri::State;
 #[tauri::command]
 pub async fn list_gpio_pins(state: State<'_, AppState>) -> Result<Vec<GpioPinInfo>, String> {
     let gpio = state.gpio.read();
-    Ok(gpio.list_pins())
+    gpio.list_pins().map_err(|e| e.to_string())
 }
 
 /// Configure a GPIO pin

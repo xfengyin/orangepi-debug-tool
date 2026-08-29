@@ -74,9 +74,11 @@ impl SerialAdapter for MockAdapter {
     async fn list_ports(&self) -> AppResult<Vec<super::traits::SerialPortInfo>> {
         Ok(vec![
             super::traits::SerialPortInfo {
+                port_name: "/dev/ttyUSB0".to_string(),
                 port_type: "USB".to_string(),
             },
             super::traits::SerialPortInfo {
+                port_name: "/dev/ttyUSB1".to_string(),
                 port_type: "USB".to_string(),
             },
         ])

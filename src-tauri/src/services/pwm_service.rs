@@ -79,7 +79,7 @@ impl PwmService {
         let adapter = self.registry.lock().get_default_pwm()
             .ok_or_else(|| AppError::NotFound("No PWM adapter available".to_string()))?;
 
-        adapter.enable_channel(channel).await
+        adapter.enable_channel(0, channel, true).await
             .map_err(|e| AppError::Pwm(format!("Failed to enable channel {}: {}", channel, e)))?;
 
         let mut channels = self.channels.write().await;
@@ -100,7 +100,7 @@ impl PwmService {
         let adapter = self.registry.lock().get_default_pwm()
             .ok_or_else(|| AppError::NotFound("No PWM adapter available".to_string()))?;
 
-        adapter.disable_channel(channel).await
+        adapter.enable_channel(0, channel, false).await
             .map_err(|e| AppError::Pwm(format!("Failed to disable channel {}: {}", channel, e)))?;
 
         if let Some(channel_state) = self.channels.write().await.get_mut(&channel) {
@@ -120,7 +120,7 @@ impl PwmService {
         let adapter = self.registry.lock().get_default_pwm()
             .ok_or_else(|| AppError::NotFound("No PWM adapter available".to_string()))?;
 
-        adapter.set_frequency(channel, frequency_hz).await
+        adapter.set_frequency(0, channel, frequency_hz as f64).await
             .map_err(|e| AppError::Pwm(format!("Failed to set frequency for channel {}: {}", channel, e)))?;
 
         if let Some(channel_state) = self.channels.write().await.get_mut(&channel) {
@@ -142,7 +142,7 @@ impl PwmService {
         let adapter = self.registry.lock().get_default_pwm()
             .ok_or_else(|| AppError::NotFound("No PWM adapter available".to_string()))?;
 
-        adapter.set_duty_cycle(channel, duty_percent).await
+        adapter.set_duty_cycle(0, channel, duty_percent).await
             .map_err(|e| AppError::Pwm(format!("Failed to set duty cycle for channel {}: {}", channel, e)))?;
 
         if let Some(channel_state) = self.channels.write().await.get_mut(&channel) {
@@ -187,7 +187,7 @@ impl PwmService {
     pub async fn fade_in(&self, channel: u32, target_duty: f64, duration_ms: u64) -> AppResult<()> {
         let steps = 100;
         let step_duration = duration_ms / steps;
-        let current_duty = self.get_channel_state(channel)
+        let current_duty = self.get_channel_state(channel).await
             .map(|c| c.duty_cycle)
             .unwrap_or(0.0);
         let step_size = (target_duty - current_duty) / steps as f64;
@@ -205,7 +205,7 @@ impl PwmService {
     pub async fn fade_out(&self, channel: u32, duration_ms: u64) -> AppResult<()> {
         let steps = 100;
         let step_duration = duration_ms / steps;
-        let current_duty = self.get_channel_state(channel)
+        let current_duty = self.get_channel_state(channel).await
             .map(|c| c.duty_cycle)
             .unwrap_or(0.0);
         let step_size = current_duty / steps as f64;
