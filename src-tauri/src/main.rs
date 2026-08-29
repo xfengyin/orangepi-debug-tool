@@ -5,19 +5,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use orangepi_debug_tool::{cleanup_app, initialize_app};
-use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use tauri::Manager;
 use tracing::info;
 
 fn main() {
-    // Initialize system tray
-    let tray_menu = SystemTrayMenu::new()
-        .add_item(CustomMenuItem::new("show", "显示窗口"))
-        .add_item(CustomMenuItem::new("hide", "隐藏窗口"))
-        .add_native_item(tauri::SystemTrayMenuItem::Separator)
-        .add_item(CustomMenuItem::new("quit", "退出"));
-    
-    let system_tray = SystemTray::new().with_menu(tray_menu);
-    
     tauri::Builder::default()
         .setup(|app| {
             // Initialize application
@@ -28,38 +19,6 @@ fn main() {
                 }
             });
             Ok(())
-        })
-        .system_tray(system_tray)
-        .on_system_tray_event(|app, event| match event {
-            SystemTrayEvent::LeftClick {
-                position: _,
-                size: _,
-                ..
-            } => {
-                let window = app.get_window("main").unwrap();
-                window.show().unwrap();
-                window.set_focus().unwrap();
-            }
-            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "show" => {
-                    let window = app.get_window("main").unwrap();
-                    window.show().unwrap();
-                    window.set_focus().unwrap();
-                }
-                "hide" => {
-                    let window = app.get_window("main").unwrap();
-                    window.hide().unwrap();
-                }
-                "quit" => {
-                    let app_handle = app.clone();
-                    tauri::async_runtime::block_on(async move {
-                        let _ = cleanup_app(&app_handle).await;
-                    });
-                    std::process::exit(0);
-                }
-                _ => {}
-            },
-            _ => {}
         })
         .on_window_event(|event| match event.event() {
             tauri::WindowEvent::CloseRequested { api, .. } => {
