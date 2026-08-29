@@ -1,6 +1,6 @@
 {
   "name": "orangepi-debug-tool",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "OrangePi Debug Tool - A comprehensive debugging utility for OrangePi devices",
   "type": "module",
   "scripts": {

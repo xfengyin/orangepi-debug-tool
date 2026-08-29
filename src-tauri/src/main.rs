@@ -17,7 +17,7 @@ fn main() {
             }
             Ok(())
         })
-        .on_window_event(|window, event| match event.event() {
+        .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let _ = window.hide();
                 api.prevent_close();
