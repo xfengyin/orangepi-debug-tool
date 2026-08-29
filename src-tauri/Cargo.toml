@@ -1,6 +1,6 @@
 [package]
 name = "orangepi-debug-tool"
-version = "2.2.2"
+version = "2.2.3"
 description = "OrangePi Debug Tool - A comprehensive debugging utility for OrangePi devices"
 authors = ["OrangePi Team"]
 license = "MIT"
