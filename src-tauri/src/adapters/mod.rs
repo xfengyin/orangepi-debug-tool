@@ -17,28 +17,22 @@ pub fn create_default_registry() -> DeviceAdapterRegistry {
 pub fn create_with_adapters() -> DeviceAdapterRegistry {
     let mut registry = DeviceAdapterRegistry::new();
     
+    let mock = Arc::new(mock::MockAdapter::new());
+    registry.register_serial(mock.clone());
+    registry.register_gpio(mock.clone());
+    registry.register_pwm(mock.clone());
+
     #[cfg(feature = "hardware-support")]
     {
         let zero3 = Arc::new(orangepi_zero3::OrangePiZero3Adapter::new());
         registry.register(zero3.clone());
-        registry.register_serial(zero3.clone());
-        registry.register_gpio(zero3.clone());
-        registry.register_pwm(zero3.clone());
-
         let linux = Arc::new(generic_linux::GenericLinuxAdapter::new());
         registry.register(linux.clone());
-        registry.register_serial(linux.clone());
-        registry.register_gpio(linux.clone());
-        registry.register_pwm(linux.clone());
     }
-    
+
     #[cfg(not(feature = "hardware-support"))]
     {
-        let mock = Arc::new(mock::MockAdapter::new());
-        registry.register(mock.clone());
-        registry.register_serial(mock.clone());
-        registry.register_gpio(mock.clone());
-        registry.register_pwm(mock.clone());
+        registry.register(mock);
     }
     
     registry

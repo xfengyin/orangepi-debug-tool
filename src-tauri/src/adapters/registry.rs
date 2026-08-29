@@ -79,7 +79,7 @@ impl DeviceAdapterRegistry {
         Ok(())
     }
 
-    pub fn register_serial(&self, adapter: Arc<dyn SerialAdapter>) {
+    pub fn register_serial(&mut self, adapter: Arc<dyn SerialAdapter>) {
         let id = adapter.id().to_string();
         if self.default_serial.is_none() {
             self.default_serial = Some(id.clone());
@@ -87,7 +87,7 @@ impl DeviceAdapterRegistry {
         self.serial_adapters.insert(id, adapter);
     }
 
-    pub fn register_gpio(&self, adapter: Arc<dyn GpioAdapter>) {
+    pub fn register_gpio(&mut self, adapter: Arc<dyn GpioAdapter>) {
         let id = adapter.id().to_string();
         if self.default_gpio.is_none() {
             self.default_gpio = Some(id.clone());
@@ -95,7 +95,7 @@ impl DeviceAdapterRegistry {
         self.gpio_adapters.insert(id, adapter);
     }
 
-    pub fn register_pwm(&self, adapter: Arc<dyn PwmAdapter>) {
+    pub fn register_pwm(&mut self, adapter: Arc<dyn PwmAdapter>) {
         let id = adapter.id().to_string();
         if self.default_pwm.is_none() {
             self.default_pwm = Some(id.clone());
