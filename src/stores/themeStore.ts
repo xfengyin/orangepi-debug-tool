@@ -18,19 +18,19 @@ const cursorDarkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#7c3aed',
-      light: '#a78bfa',
-      dark: '#5b21b6',
+      main: '#FF6B35',
+      light: '#FF8F5E',
+      dark: '#E0561F',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#3b82f6',
-      light: '#60a5fa',
-      dark: '#2563eb',
+      main: '#38BDF8',
+      light: '#7DD3FC',
+      dark: '#0EA5E9',
     },
     background: {
-      default: '#0a0a0a',
-      paper: '#1a1a1a',
+      default: '#0A0E14',
+      paper: '#121820',
     },
     error: {
       main: '#ef4444',
@@ -95,8 +95,8 @@ const cursorDarkTheme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: '#0a0a0a',
-          color: '#ffffff',
+          backgroundColor: '#0A0E14',
+          color: '#E5EAF3',
         },
       },
     },
@@ -110,14 +110,14 @@ const cursorDarkTheme = createTheme({
           fontSize: '0.875rem',
         },
         contained: {
-          background: 'linear-gradient(135deg, #7c3aed, #3b82f6)',
-          boxShadow: '0 0 20px rgba(124, 58, 237, 0.15)',
+          background: 'linear-gradient(135deg, #FF6B35, #38BDF8)',
+          boxShadow: '0 0 20px rgba(255, 107, 53, 0.15)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #6d28d9, #2563eb)',
-            boxShadow: '0 0 24px rgba(124, 58, 237, 0.25)',
+            background: 'linear-gradient(135deg, #E0561F, #0EA5E9)',
+            boxShadow: '0 0 24px rgba(255, 107, 53, 0.25)',
           },
           '&:active': {
-            background: 'linear-gradient(135deg, #5b21b6, #1d4ed8)',
+            background: 'linear-gradient(135deg, #C44D20, #0B87C7)',
           },
           '&:disabled': {
             background: '#2a2a2a',
@@ -193,10 +193,10 @@ const cursorDarkTheme = createTheme({
             color: '#ffffff',
           },
           '&.Mui-selected': {
-            backgroundColor: 'rgba(124, 58, 237, 0.12)',
-            color: '#a78bfa',
+            backgroundColor: 'rgba(255, 107, 53, 0.12)',
+            color: '#FF8F5E',
             '&:hover': {
-              backgroundColor: 'rgba(124, 58, 237, 0.18)',
+              backgroundColor: 'rgba(255, 107, 53, 0.18)',
             },
           },
         },
@@ -393,15 +393,15 @@ const cursorLightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#7c3aed',
-      light: '#a78bfa',
-      dark: '#5b21b6',
+      main: '#FF6B35',
+      light: '#FF8F5E',
+      dark: '#E0561F',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#3b82f6',
-      light: '#60a5fa',
-      dark: '#2563eb',
+      main: '#38BDF8',
+      light: '#7DD3FC',
+      dark: '#0EA5E9',
     },
     background: {
       default: '#fafafa',
@@ -453,9 +453,9 @@ const cursorLightTheme = createTheme({
           fontWeight: 500,
         },
         contained: {
-          background: 'linear-gradient(135deg, #7c3aed, #3b82f6)',
+          background: 'linear-gradient(135deg, #FF6B35, #38BDF8)',
           '&:hover': {
-            background: 'linear-gradient(135deg, #6d28d9, #2563eb)',
+            background: 'linear-gradient(135deg, #E0561F, #0EA5E9)',
           },
         },
       },

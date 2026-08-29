@@ -9,14 +9,18 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
+  Search as SearchIcon,
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
   Refresh as RefreshIcon,
-  Circle as CircleIcon,
 } from '@mui/icons-material';
 import { useThemeStore, useAppStore, useSerialStore } from '../../stores';
 
-const Header: React.FC = memo(() => {
+interface HeaderProps {
+  onOpenCommand: () => void;
+}
+
+const Header: React.FC<HeaderProps> = memo(({ onOpenCommand }) => {
   const { mode, toggleMode } = useThemeStore();
   const { toggleSidebar, systemInfo } = useAppStore();
   const { refreshPorts, status, config } = useSerialStore();
@@ -84,6 +88,18 @@ const Header: React.FC = memo(() => {
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          {/* Command palette */}
+          <IconButton
+            onClick={onOpenCommand}
+            size="small"
+            sx={{
+              color: '#71717a',
+              '&:hover': { color: '#e4e4e7', backgroundColor: 'rgba(255,255,255,0.05)' },
+            }}
+          >
+            <SearchIcon fontSize="small" />
+          </IconButton>
+
           {/* Refresh button */}
           <Tooltip title="刷新设备" arrow>
             <IconButton

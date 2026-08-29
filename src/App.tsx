@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { Box, ThemeProvider, CssBaseline, Snackbar, Alert } from '@mui/material';
 import { useThemeStore, useAppStore, useLogStore } from './stores';
 import Sidebar from './components/layout/Sidebar';
+import CommandPalette from './components/layout/CommandPalette';
 import Header from './components/layout/Header';
 import OverviewPage from './components/overview/OverviewPage';
 import SerialPage from './components/serial/SerialPage';
@@ -12,6 +13,7 @@ import SettingsPage from './components/settings/SettingsPage';
 import { useSerialStore } from './stores/serialStore';
 
 const App: React.FC = () => {
+  const [commandOpen, setCommandOpen] = React.useState(false);
   const { theme } = useThemeStore();
   const {
     currentView,
@@ -54,6 +56,18 @@ const App: React.FC = () => {
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
+  }, []);
+
+  // Command palette shortcut
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setCommandOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
   // Render current page
@@ -101,7 +115,7 @@ const App: React.FC = () => {
               marginLeft: isSidebarOpen ? 0 : '-240px',
             }}
           >
-            <Header />
+            <Header onOpenCommand={() => setCommandOpen(true)} />
             <Box
               sx={{
                 flexGrow: 1,
@@ -204,6 +218,8 @@ const App: React.FC = () => {
           </Alert>
         </Snackbar>
       ))}
+      {/* Command palette */}
+      <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} />
     </ThemeProvider>
   );
 };
