@@ -62,7 +62,7 @@
     "@types/uuid": "^9.0.8",
     "@types/react-virtualized": "^9.21.29",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
-    "@typescript-eslint/parser": "^7.3.1",
+    "@typescript-eslint/parser": "^8.70.0",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitest/coverage-v8": "^1.4.0",
     "@playwright/test": "^1.42.1",
