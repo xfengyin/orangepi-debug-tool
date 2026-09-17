@@ -62,12 +62,9 @@ jobs:
         run: cd src-tauri && cargo fmt --check
 
       - name: Rust clippy lints
-        # missing_docs 在 lib.rs 中声明为 warn（非 deny），项目本意是提示而非阻塞；
-        # 这里显式放行，避免把 800+ 条文档缺口升级为构建失败。
-        # 其余 clippy/rustc 警告仍然全部视为错误。
-        run: |
-          cd src-tauri
-          cargo clippy -- -D warnings -A missing_docs -A rustdoc::missing_doc_code_examples
+        # 注：missing_docs 已在 src/lib.rs 中声明为 allow（历史文档缺口 ~800 处），
+        # 因此这里保持严格 `-D warnings`，任何真实 clippy/rustc 警告都会阻塞。
+        run: cd src-tauri && cargo clippy -- -D warnings
 
   build:
     name: Build Check
