@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -30,7 +30,7 @@ jobs:
           toolchain: stable
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -71,7 +71,7 @@ jobs:
         run: npm run tauri:build
 
       - name: Upload nightly artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nightly-artifacts
           path: |
@@ -82,7 +82,7 @@ jobs:
           retention-days: 7
 
       - name: Create Nightly Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: nightly-${{ env.VERSION }}
           release_name: OrangePi Debug Tool Nightly ${{ env.VERSION }}
