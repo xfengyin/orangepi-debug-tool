@@ -82,7 +82,7 @@ jobs:
           retention-days: 7
 
       - name: Create Nightly Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: nightly-${{ env.VERSION }}
           release_name: OrangePi Debug Tool Nightly ${{ env.VERSION }}
