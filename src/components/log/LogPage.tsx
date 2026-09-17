@@ -37,6 +37,9 @@ const LogPage: React.FC = memo(() => {
     getFilteredEntries,
   } = useLogStore();
 
+  // getFilteredEntries 的结果由 entries/filter 决定，二者变化时已触发重算；
+  // 函数来自 store（引用稳定），故只声明真实数据依赖。
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const filteredEntries = useMemo(() => getFilteredEntries(), [entries, filter]);
 
   const handleExport = () => {

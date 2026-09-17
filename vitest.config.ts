@@ -8,6 +8,9 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
+    // 排除 Playwright e2e（由 `npm run test:e2e` 单独运行，需要 dev server）；
+    // 显式声明默认排除项，避免覆盖 vitest 内置默认值。
+    exclude: ['node_modules/**', 'dist/**', 'src-tauri/**', 'tests/e2e/**'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [

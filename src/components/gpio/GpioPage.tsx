@@ -27,6 +27,8 @@ const GpioPage: React.FC = memo(() => {
 
   useEffect(() => {
     refreshPins();
+    // 挂载时拉取一次引脚状态；refreshPins 为 store 动作，故意不加入依赖数组
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleToggle = async (pin: number) => {

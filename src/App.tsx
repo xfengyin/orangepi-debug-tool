@@ -34,6 +34,8 @@ const App: React.FC = () => {
     loadSystemInfo();
     checkOrangePi();
     addLog('info', 'App', 'OrangePi Debug Tool started');
+    // 仅在挂载时初始化一次；store 动作引用稳定，故意不加入依赖数组
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Global error handler
@@ -56,6 +58,8 @@ const App: React.FC = () => {
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
+    // 全局错误监听只需注册一次（handler 为一次性闭包），故意不加入依赖数组
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Command palette shortcut

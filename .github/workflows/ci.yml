@@ -43,6 +43,9 @@ jobs:
       - name: ESLint
         run: npm run lint
 
+      - name: Unit tests (vitest)
+        run: npm test
+
       - name: Rust formatting check
         run: cd src-tauri && cargo fmt --check
 

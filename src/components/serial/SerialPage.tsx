@@ -206,7 +206,7 @@ const SerialPage: React.FC = memo(() => {
                 <Select
                   value={config.parity}
                   label="校验"
-                  onChange={(e) => setConfig({ parity: e.target.value as any })}
+                  onChange={(e) => setConfig({ parity: e.target.value as 'none' | 'even' | 'odd' })}
                   disabled={status.connected}
                   sx={{
                     backgroundColor: '#0a0a0a',

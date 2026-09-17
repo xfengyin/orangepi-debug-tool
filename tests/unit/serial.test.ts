@@ -32,7 +32,7 @@ describe('Serial Store', () => {
       { port_name: '/dev/ttyUSB1', port_type: 'USB' },
     ];
     
-    store.setPorts(mockPorts as any);
+    store.setPorts(mockPorts);
     
     expect(useSerialStore.getState().ports).toHaveLength(2);
     expect(useSerialStore.getState().ports[0].port_name).toBe('/dev/ttyUSB0');
