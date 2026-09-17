@@ -3,7 +3,7 @@
 use crate::AppResult;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{EnvFilter, Layer};
+use tracing_subscriber::EnvFilter;
 
 /// Initialize application logging
 pub fn init_logging() -> AppResult<()> {

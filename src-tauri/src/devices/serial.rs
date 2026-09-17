@@ -9,7 +9,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::{mpsc, oneshot, Mutex};
 use tokio::time::timeout;
 use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialStream, StopBits};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 
 /// Serial port configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -103,6 +103,12 @@ pub struct SerialStats {
 enum SerialCommand {
     Write(Vec<u8>, oneshot::Sender<AppResult<usize>>),
     Disconnect(oneshot::Sender<AppResult<()>>),
+}
+
+impl Default for SerialManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SerialManager {

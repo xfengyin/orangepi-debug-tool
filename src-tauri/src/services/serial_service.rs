@@ -4,12 +4,12 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
 use tokio::time::{timeout, Duration};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info};
 
 use crate::adapters::{DeviceAdapterRegistry, SerialAdapter, SerialConfig, SerialPortInfo};
 use crate::config::SerialDeviceConfig;
 use crate::error::{AppError, AppResult};
-use crate::observability::{MetricsCollector, SerialMetric};
+use crate::observability::MetricsCollector;
 
 #[derive(Debug, Clone)]
 pub struct SerialConnection {
@@ -59,7 +59,9 @@ impl SerialService {
     pub async fn initialize(&self) -> AppResult<()> {
         info!("Initializing SerialService with config: {:?}", self.config);
 
-        if let Some(adapter) = self.registry.lock().get_default_serial() {
+        // 先取出 adapter（克隆的 Arc）再 await：避免 parking_lot MutexGuard 跨越 await 点
+        let adapter = self.registry.lock().get_default_serial();
+        if let Some(adapter) = adapter {
             let ports = adapter
                 .list_ports()
                 .await
@@ -74,7 +76,7 @@ impl SerialService {
         info!("Shutting down SerialService");
 
         let mut connections = self.connections.write().await;
-        for (id, _) in connections.iter() {
+        for id in connections.keys() {
             info!("Closing connection: {}", id);
         }
         connections.clear();

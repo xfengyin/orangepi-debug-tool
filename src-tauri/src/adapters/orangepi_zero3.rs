@@ -1,10 +1,9 @@
 use async_trait::async_trait;
 use std::collections::HashSet;
-use std::sync::Arc;
 use tokio::time::Instant;
-use tracing::{debug, info};
+use tracing::info;
 
-use crate::error::{AppError, AppResult};
+use crate::error::AppResult;
 
 use super::traits::*;
 use crate::observability::health::ComponentHealth;
@@ -12,6 +11,8 @@ use crate::observability::health::ComponentHealth;
 #[derive(Debug)]
 pub struct OrangePiZero3Adapter {
     board_model: String,
+    // 由配置加载的引脚定义；预留给后续引脚复用/校验扩展
+    #[allow(dead_code)]
     pin_definitions: Vec<PinDefinition>,
 }
 

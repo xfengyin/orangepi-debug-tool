@@ -5,8 +5,6 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{debug, error, info, warn};
 
-use crate::error::{AppError, AppResult};
-
 use super::schema::*;
 
 #[derive(Debug, Clone)]
@@ -52,12 +50,15 @@ pub struct ConfigLoader {
     config_path: PathBuf,
     hot_reload_enabled: bool,
     cache: RwLock<AppConfiguration>,
+    // 预留给后续「配置热更新事件」功能；当前未启用
+    #[allow(dead_code)]
     change_sender: Option<mpsc::Sender<ConfigChangeEvent>>,
 }
 
 #[derive(Debug, Clone)]
 pub enum ConfigChangeEvent {
-    Reloaded(AppConfiguration),
+    // AppConfiguration 较大（~688B），装箱避免整个枚举膨胀
+    Reloaded(Box<AppConfiguration>),
     Error(ConfigError),
 }
 
@@ -140,7 +141,7 @@ impl ConfigLoader {
         Arc::new(self.cache.read().clone())
     }
 
-    pub fn watch<F>(&mut self, callback: F) -> Result<(), ConfigError>
+    pub fn watch<F>(&mut self, _callback: F) -> Result<(), ConfigError>
     where
         F: Fn(AppConfiguration) + Send + Sync + 'static,
     {
@@ -150,7 +151,7 @@ impl ConfigLoader {
         }
 
         let config_path = self.config_path.clone();
-        let cache = Arc::new(RwLock::new(self.cache.read().clone()));
+        let _cache = Arc::new(RwLock::new(self.cache.read().clone()));
 
         std::thread::spawn(move || {
             let mut watcher = match notify::recommended_watcher(

@@ -1,7 +1,6 @@
 //! Binary protocol for efficient frontend-backend communication
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use serde::{Deserialize, Serialize};
 
 /// Binary message types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

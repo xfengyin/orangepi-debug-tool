@@ -1,16 +1,13 @@
-use async_trait::async_trait;
 use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
-use crate::adapters::{
-    DeviceAdapterRegistry, GpioAdapter, GpioDirection, GpioPinInfo, GpioPull, GpioTrigger,
-};
+use crate::adapters::{DeviceAdapterRegistry, GpioDirection, GpioPinInfo, GpioPull, GpioTrigger};
 use crate::config::GpioDeviceConfig;
 use crate::error::{AppError, AppResult};
-use crate::observability::{GpioMetric, MetricsCollector};
+use crate::observability::MetricsCollector;
 
 #[derive(Debug, Clone)]
 pub struct GpioPin {
@@ -26,6 +23,8 @@ pub struct GpioService {
     config: GpioDeviceConfig,
     pins: Arc<RwLock<HashMap<u32, GpioPin>>>,
     metrics: Arc<MetricsCollector>,
+    // 预留给 GPIO 中断订阅（on_interrupt）功能
+    #[allow(dead_code)]
     interrupt_callbacks: Arc<RwLock<Vec<mpsc::Sender<GpioInterrupt>>>>,
 }
 
@@ -61,7 +60,9 @@ impl GpioService {
     pub async fn initialize(&self) -> AppResult<()> {
         info!("Initializing GpioService with config: {:?}", self.config);
 
-        if let Some(adapter) = self.registry.lock().get_default_gpio() {
+        // 先取出 adapter（克隆的 Arc）再 await：避免 parking_lot MutexGuard 跨越 await 点
+        let adapter = self.registry.lock().get_default_gpio();
+        if let Some(adapter) = adapter {
             let pins = adapter
                 .list_pins()
                 .await
@@ -76,7 +77,7 @@ impl GpioService {
         info!("Shutting down GpioService");
 
         let pins = self.pins.read().await;
-        for (pin, _) in pins.iter() {
+        for pin in pins.keys() {
             info!("Unexporting pin: {}", pin);
         }
 

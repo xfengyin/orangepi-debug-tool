@@ -5,7 +5,6 @@ use crate::error::{AppError, AppResult};
 use crate::observability::{AppTracer, HealthChecker, MetricsCollector};
 use crate::services::ServiceManager;
 use parking_lot::RwLock;
-use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::info;
 
@@ -31,7 +30,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub async fn new(app: &tauri::App) -> AppResult<Self> {
+    pub async fn new(_app: &tauri::App) -> AppResult<Self> {
         info!("Initializing application state");
 
         let config = ConfigLoader::new("config/config.yaml")
@@ -76,7 +75,9 @@ impl AppState {
     pub async fn cleanup(&self) -> AppResult<()> {
         info!("Cleaning up application state");
 
-        if let Some(manager) = self.service_manager.write().take() {
+        // 先 take 出 manager 再 await：避免 RwLockWriteGuard 跨越 await 点
+        let manager = self.service_manager.write().take();
+        if let Some(manager) = manager {
             manager.shutdown().await?;
         }
 

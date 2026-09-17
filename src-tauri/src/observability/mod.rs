@@ -6,10 +6,6 @@ pub use health::*;
 pub use metrics::*;
 pub use tracing::*;
 
-use dashmap::DashMap;
-use parking_lot::RwLock;
-use std::collections::HashMap;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 pub struct ObservabilityManager {

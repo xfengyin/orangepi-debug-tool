@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AppConfiguration {
     pub meta: ConfigMetadata,
     pub system: SystemConfig,
@@ -12,21 +12,6 @@ pub struct AppConfiguration {
     pub prompts: PromptConfigSection,
     pub security: SecurityConfig,
     pub observability: ObservabilityConfig,
-}
-
-impl Default for AppConfiguration {
-    fn default() -> Self {
-        Self {
-            meta: ConfigMetadata::default(),
-            system: SystemConfig::default(),
-            devices: DeviceConfigSection::default(),
-            plugins: PluginConfigSection::default(),
-            skills: SkillConfigSection::default(),
-            prompts: PromptConfigSection::default(),
-            security: SecurityConfig::default(),
-            observability: ObservabilityConfig::default(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,18 +33,13 @@ impl Default for ConfigMetadata {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub enum Environment {
     Development,
     Testing,
     Staging,
+    #[default]
     Production,
-}
-
-impl Default for Environment {
-    fn default() -> Self {
-        Self::Production
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -83,10 +63,11 @@ impl Default for SystemConfig {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub enum LogLevel {
     Trace,
     Debug,
+    #[default]
     Info,
     Warn,
     Error,
@@ -104,12 +85,6 @@ impl std::str::FromStr for LogLevel {
             "error" => Ok(LogLevel::Error),
             _ => Err(format!("Invalid log level: {}", s)),
         }
-    }
-}
-
-impl Default for LogLevel {
-    fn default() -> Self {
-        Self::Info
     }
 }
 
@@ -151,21 +126,11 @@ impl Default for CircuitBreakerConfig {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DeviceConfigSection {
     pub serial: SerialDeviceConfig,
     pub gpio: GpioDeviceConfig,
     pub pwm: PwmDeviceConfig,
-}
-
-impl Default for DeviceConfigSection {
-    fn default() -> Self {
-        Self {
-            serial: SerialDeviceConfig::default(),
-            gpio: GpioDeviceConfig::default(),
-            pwm: PwmDeviceConfig::default(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

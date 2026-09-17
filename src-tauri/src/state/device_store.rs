@@ -54,6 +54,8 @@ pub enum DeviceEvent {
 pub struct DeviceStore {
     devices: Arc<RwLock<HashMap<String, DeviceState>>>,
     event_sender: mpsc::Sender<DeviceEvent>,
+    // 持有事件通道接收端，供后续设备事件订阅接口使用（drop 会导致发送端报错）
+    #[allow(dead_code)]
     event_receiver: Arc<RwLock<Option<mpsc::Receiver<DeviceEvent>>>>,
     capabilities: Arc<RwLock<HashSet<DeviceCapability>>>,
 }

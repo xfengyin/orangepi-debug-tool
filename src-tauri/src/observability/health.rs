@@ -195,6 +195,8 @@ impl Default for HealthChecker {
 
 #[derive(Debug)]
 pub struct LivenessChecker {
+    // 记录启动时刻，预留给后续 uptime 上报
+    #[allow(dead_code)]
     startup_time: std::time::Instant,
 }
 

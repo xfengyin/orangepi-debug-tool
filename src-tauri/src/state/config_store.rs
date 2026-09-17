@@ -15,7 +15,8 @@ pub struct ConfigStore {
 
 #[derive(Debug, Clone)]
 pub enum ConfigChangeEvent {
-    Changed(AppConfiguration),
+    // AppConfiguration 较大（~688B），装箱避免整个枚举膨胀
+    Changed(Box<AppConfiguration>),
     Error(String),
 }
 
@@ -61,7 +62,7 @@ impl ConfigStore {
 
         if let Some(ref sender) = self.change_sender {
             let _ = sender
-                .send(ConfigChangeEvent::Changed(config.clone()))
+                .send(ConfigChangeEvent::Changed(Box::new(config.clone())))
                 .await;
         }
 

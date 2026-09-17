@@ -1,11 +1,10 @@
-use async_trait::async_trait;
 use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info};
 
-use crate::adapters::{DeviceAdapterRegistry, PwmAdapter, PwmChannelInfo};
+use crate::adapters::{DeviceAdapterRegistry, PwmChannelInfo};
 use crate::config::PwmDeviceConfig;
 use crate::error::{AppError, AppResult};
 use crate::observability::MetricsCollector;
@@ -45,7 +44,9 @@ impl PwmService {
     pub async fn initialize(&self) -> AppResult<()> {
         info!("Initializing PwmService with config: {:?}", self.config);
 
-        if let Some(adapter) = self.registry.lock().get_default_pwm() {
+        // 先取出 adapter（克隆的 Arc）再 await：避免 parking_lot MutexGuard 跨越 await 点
+        let adapter = self.registry.lock().get_default_pwm();
+        if let Some(adapter) = adapter {
             let channels = adapter
                 .list_channels()
                 .await

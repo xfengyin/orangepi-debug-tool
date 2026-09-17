@@ -2,9 +2,8 @@ use async_trait::async_trait;
 use std::collections::HashSet;
 use std::path::Path;
 use tokio::time::Instant;
-use tracing::{debug, warn};
 
-use crate::error::{AppError, AppResult};
+use crate::error::AppResult;
 
 use super::traits::*;
 use crate::observability::health::ComponentHealth;
@@ -85,7 +84,7 @@ impl DeviceAdapter for GenericLinuxAdapter {
         let gpio_driver = self.detect_gpio_driver();
         let pwm_driver = self.detect_pwm_driver();
 
-        let message = match (&gpio_driver, &pwm_driver) {
+        let _message = match (&gpio_driver, &pwm_driver) {
             (Some(g), Some(p)) => format!("GPIO: {}, PWM: {}", g, p),
             (Some(g), None) => format!("GPIO: {} (PWM not available)", g),
             (None, Some(p)) => format!("PWM: {} (GPIO not available)", p),

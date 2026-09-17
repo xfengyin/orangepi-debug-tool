@@ -1,7 +1,7 @@
 use dashmap::DashMap;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::{debug, error, info};
+use tracing::info;
 
 use crate::error::{AppError, AppResult};
 

@@ -1,9 +1,7 @@
 //! Serial port command handlers
 
-use crate::commands::{into_response, ApiResponse};
 use crate::devices::serial::{SerialConfig, SerialPortInfo};
 use crate::state::AppState;
-use crate::AppResult;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -22,21 +20,21 @@ pub async fn auto_detect_serial() -> Result<Option<String>, String> {
 /// Connect to serial port
 #[tauri::command]
 pub async fn connect_serial(
-    config: SerialConfig,
-    state: State<'_, AppState>,
+    _config: SerialConfig,
+    _state: State<'_, AppState>,
 ) -> Result<(), String> {
     Ok(())
 }
 
 /// Disconnect from serial port
 #[tauri::command]
-pub async fn disconnect_serial(state: State<'_, AppState>) -> Result<(), String> {
+pub async fn disconnect_serial(_state: State<'_, AppState>) -> Result<(), String> {
     Ok(())
 }
 
 /// Write data to serial port
 #[tauri::command]
-pub async fn write_serial(data: Vec<u8>, state: State<'_, AppState>) -> Result<usize, String> {
+pub async fn write_serial(data: Vec<u8>, _state: State<'_, AppState>) -> Result<usize, String> {
     Ok(data.len())
 }
 
@@ -44,14 +42,14 @@ pub async fn write_serial(data: Vec<u8>, state: State<'_, AppState>) -> Result<u
 #[tauri::command]
 pub async fn write_serial_string(
     data: String,
-    state: State<'_, AppState>,
+    _state: State<'_, AppState>,
 ) -> Result<usize, String> {
     Ok(data.len())
 }
 
 /// Get serial connection status
 #[tauri::command]
-pub async fn get_serial_status(state: State<'_, AppState>) -> Result<SerialStatus, String> {
+pub async fn get_serial_status(_state: State<'_, AppState>) -> Result<SerialStatus, String> {
     Ok(SerialStatus {
         connected: false,
         config: None,
@@ -69,8 +67,8 @@ pub struct SerialStatus {
 #[tauri::command]
 pub async fn send_command(
     command: String,
-    timeout_ms: u64,
-    state: State<'_, AppState>,
+    _timeout_ms: u64,
+    _state: State<'_, AppState>,
 ) -> Result<String, String> {
     Ok(format!("Command '{}' sent successfully", command))
 }

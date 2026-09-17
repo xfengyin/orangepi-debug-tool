@@ -220,6 +220,8 @@ pub enum CircuitBreakerState {
 
 /// Circuit breaker for preventing cascading failures
 pub struct CircuitBreaker {
+    // 预留给后续熔断器日志/错误上下文（当前 AppError 未携带名称）
+    #[allow(dead_code)]
     name: String,
     state: CircuitBreakerState,
     failure_count: u32,
@@ -305,10 +307,8 @@ impl CircuitBreaker {
                 self.state = CircuitBreakerState::Open;
                 self.success_count = 0;
             }
-            CircuitBreakerState::Closed => {
-                if self.failure_count >= self.config.failure_threshold {
-                    self.state = CircuitBreakerState::Open;
-                }
+            CircuitBreakerState::Closed if self.failure_count >= self.config.failure_threshold => {
+                self.state = CircuitBreakerState::Open;
             }
             _ => {}
         }
@@ -333,6 +333,12 @@ pub struct ErrorStats {
     pub last_occurrence: Option<Instant>,
     pub first_occurrence: Option<Instant>,
     pub error_messages: Vec<String>,
+}
+
+impl Default for ErrorCollector {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ErrorCollector {
@@ -371,7 +377,7 @@ impl ErrorCollector {
             .iter()
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
-        errors.sort_by(|a, b| b.1.count.cmp(&a.1.count));
+        errors.sort_by_key(|a| std::cmp::Reverse(a.1.count));
         errors.into_iter().take(limit).collect()
     }
 
@@ -418,7 +424,7 @@ impl RetryHandler {
         for attempt in 1..=self.max_attempts {
             match operation.as_mut().await {
                 Ok(result) => return Ok(result),
-                Err(e) if attempt < self.max_attempts => {
+                Err(_e) if attempt < self.max_attempts => {
                     tokio::time::sleep(tokio::time::Duration::from_millis(delay)).await;
                     delay = (delay as f64 * self.backoff_multiplier) as u64;
                     delay = delay.min(self.max_delay_ms);

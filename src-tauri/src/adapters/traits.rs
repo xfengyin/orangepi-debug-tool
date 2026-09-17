@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use std::collections::HashSet;
 use std::fmt::Debug;
 
-use crate::error::{AppError, AppResult};
-use crate::observability::health::{ComponentHealth, HealthState};
+use crate::error::AppResult;
+use crate::observability::health::ComponentHealth;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DeviceCapability {

@@ -1,9 +1,7 @@
 //! GPIO command handlers
 
-use crate::commands::{into_response, ApiResponse};
 use crate::devices::gpio::{GpioConfig, GpioPinInfo};
 use crate::state::AppState;
-use serde::{Deserialize, Serialize};
 use tauri::State;
 
 /// List available GPIO pins

@@ -1,7 +1,6 @@
 use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Arc;
 
 pub struct MetricsCollector {
     counters: RwLock<HashMap<String, Counter>>,

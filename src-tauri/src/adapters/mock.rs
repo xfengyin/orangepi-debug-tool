@@ -1,12 +1,11 @@
 use super::traits::{
-    DeviceAdapter, DeviceCapability, DeviceInfo, GpioAdapter, GpioDirection, GpioPinInfo, GpioPull,
+    DeviceAdapter, DeviceCapability, GpioAdapter, GpioDirection, GpioPinInfo, GpioPull,
     GpioTrigger, PwmAdapter, PwmChannelInfo, PwmConfig, SerialAdapter, SerialConfig, SerialHandle,
 };
 use crate::error::{AppError, AppResult};
 use crate::observability::health::ComponentHealth;
 use async_trait::async_trait;
 use parking_lot::Mutex;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;
 
@@ -20,8 +19,6 @@ pub struct MockAdapter {
 pub struct MockState {
     serial_connected: bool,
     serial_buffer: Vec<u8>,
-    gpio_states: HashMap<u32, bool>,
-    pwm_states: HashMap<u32, (f64, f64, bool)>,
 }
 
 impl MockAdapter {

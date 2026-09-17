@@ -152,7 +152,9 @@ impl SessionStore {
                 stack.push_back(operation);
             }
             let mut redo_stack = self.redo_stack.write();
-            redo_stack.get_mut(&session_id).map(|s| s.clear());
+            if let Some(s) = redo_stack.get_mut(&session_id) {
+                s.clear()
+            }
         }
 
         debug!(
@@ -175,10 +177,7 @@ impl SessionStore {
 
     pub fn undo(&self) -> Option<Operation> {
         let current = self.current_session.read().clone();
-        let session_id = match current {
-            Some(id) => id,
-            None => return None,
-        };
+        let session_id = current?;
 
         let mut undo_stack = self.undo_stack.write();
         let operation = undo_stack.get_mut(&session_id)?.pop_back()?;
@@ -194,10 +193,7 @@ impl SessionStore {
 
     pub fn redo(&self) -> Option<Operation> {
         let current = self.current_session.read().clone();
-        let session_id = match current {
-            Some(id) => id,
-            None => return None,
-        };
+        let session_id = current?;
 
         let mut redo_stack = self.redo_stack.write();
         let operation = redo_stack.get_mut(&session_id)?.pop_back()?;

@@ -3,7 +3,7 @@
 use crate::{AppError, AppResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info};
 
 /// GPIO pin configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -91,6 +91,8 @@ pub struct GpioManager {
 /// GPIO pin handle
 struct GpioPin {
     config: GpioConfig,
+    // 预留给后续基于文件描述符的 GPIO 值写入优化；当前走 sysfs 路径写入
+    #[allow(dead_code)]
     value_fd: Option<std::fs::File>,
 }
 

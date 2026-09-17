@@ -25,14 +25,18 @@ pub fn create_with_adapters() -> DeviceAdapterRegistry {
     #[cfg(feature = "hardware-support")]
     {
         let zero3 = Arc::new(orangepi_zero3::OrangePiZero3Adapter::new());
-        registry.register(zero3.clone());
+        registry
+            .register(zero3.clone())
+            .expect("register orangepi_zero3 adapter");
         let linux = Arc::new(generic_linux::GenericLinuxAdapter::new());
-        registry.register(linux.clone());
+        registry
+            .register(linux.clone())
+            .expect("register generic_linux adapter");
     }
 
     #[cfg(not(feature = "hardware-support"))]
     {
-        registry.register(mock);
+        registry.register(mock).expect("register mock adapter");
     }
 
     registry

@@ -1,7 +1,6 @@
 use crate::error::{AppError, AppResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
 use tracing::debug;
 
 #[cfg(feature = "hardware-support")]
@@ -155,7 +154,7 @@ impl PwmDevice {
         }
 
         let channel_id = (chip << 16) | channel;
-        let frequency = {
+        let _frequency = {
             let pwm = self
                 .channels
                 .get(&channel_id)
