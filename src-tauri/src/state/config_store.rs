@@ -23,7 +23,7 @@ impl ConfigStore {
     pub fn new(config_path: Option<&std::path::Path>) -> Self {
         let path = config_path.unwrap_or_else(|| std::path::Path::new("config.yaml"));
         let loader = Arc::new(ConfigLoader::new(path).with_hot_reload(true));
-        
+
         Self {
             config: Arc::new(RwLock::new(AppConfiguration::default())),
             loader,
@@ -33,13 +33,16 @@ impl ConfigStore {
     }
 
     pub async fn load(&self) -> AppResult<AppConfiguration> {
-        let config = self.loader.load().await
+        let config = self
+            .loader
+            .load()
+            .await
             .map_err(|e| AppError::Config(e.to_string()))?;
-        
+
         if let Err(e) = self.validator.validate(&config) {
             info!("Config validation warning: {}", e);
         }
-        
+
         *self.config.write() = config.clone();
         Ok(config)
     }
@@ -48,16 +51,20 @@ impl ConfigStore {
         if let Err(e) = self.validator.validate(config) {
             return Err(AppError::Config(format!("Validation failed: {}", e)));
         }
-        
-        self.loader.save(config).await
+
+        self.loader
+            .save(config)
+            .await
             .map_err(|e| AppError::Config(e.to_string()))?;
-        
+
         *self.config.write() = config.clone();
-        
+
         if let Some(ref sender) = self.change_sender {
-            let _ = sender.send(ConfigChangeEvent::Changed(config.clone())).await;
+            let _ = sender
+                .send(ConfigChangeEvent::Changed(config.clone()))
+                .await;
         }
-        
+
         Ok(())
     }
 

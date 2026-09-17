@@ -1,11 +1,11 @@
 //! Error handling module for OrangePi Debug Tool
 
+use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 use std::collections::HashMap;
 use std::sync::Arc;
-use parking_lot::RwLock;
 use std::time::{Duration, Instant};
+use thiserror::Error;
 
 /// Result type alias with AppError
 pub type AppResult<T> = Result<T, AppError>;
@@ -17,55 +17,55 @@ pub enum AppError {
     /// Serial communication errors (code: 1001-1999)
     #[error("Serial error: {0}")]
     Serial(String),
-    
+
     /// GPIO related errors (code: 2001-2999)
     #[error("GPIO error: {0}")]
     Gpio(String),
-    
+
     /// PWM related errors (code: 3001-3999)
     #[error("PWM error: {0}")]
     Pwm(String),
-    
+
     /// Device detection errors (code: 4001-4999)
     #[error("Device error: {0}")]
     Device(String),
-    
+
     /// Database errors (code: 5001-5999)
     #[error("Database error: {0}")]
     Database(String),
-    
+
     /// Configuration errors (code: 6001-6999)
     #[error("Configuration error: {0}")]
     Config(String),
-    
+
     /// I/O errors (code: 7001-7999)
     #[error("I/O error: {0}")]
     Io(String),
-    
+
     /// Invalid argument errors (code: 8001-8999)
     #[error("Invalid argument: {0}")]
     InvalidArgument(String),
-    
+
     /// Not found errors (code: 9001-9999)
     #[error("Not found: {0}")]
     NotFound(String),
-    
+
     /// Permission denied errors (code: 10001-10999)
     #[error("Permission denied: {0}")]
     PermissionDenied(String),
-    
+
     /// Timeout errors (code: 11001-11999)
     #[error("Timeout: {0}")]
     Timeout(String),
-    
+
     /// Circuit breaker open errors (code: 12001-12999)
     #[error("Circuit breaker open: {0}")]
     CircuitBreakerOpen(String),
-    
+
     /// Invalid state errors (code: 13001-13999)
     #[error("Invalid state: {0}")]
     InvalidState(String),
-    
+
     /// Internal errors (code: 99999)
     #[error("Internal error: {0}")]
     Internal(String),
@@ -92,7 +92,7 @@ impl AppError {
             AppError::Internal(msg) => format!("内部错误: {}", msg),
         }
     }
-    
+
     /// Get error code for frontend handling
     #[inline]
     pub fn code(&self) -> &'static str {
@@ -140,33 +140,30 @@ impl AppError {
     pub fn is_retryable(&self) -> bool {
         matches!(
             self,
-            AppError::Timeout(_) | 
-            AppError::Io(_) | 
-            AppError::CircuitBreakerOpen(_)
+            AppError::Timeout(_) | AppError::Io(_) | AppError::CircuitBreakerOpen(_)
         )
     }
 
     /// Check if error is critical (should trigger circuit breaker)
     #[inline]
     pub fn is_critical(&self) -> bool {
-        matches!(
-            self,
-            AppError::Device(_) | 
-            AppError::CircuitBreakerOpen(_)
-        )
+        matches!(self, AppError::Device(_) | AppError::CircuitBreakerOpen(_))
     }
 
     /// Get recovery suggestion in Chinese
     pub fn recovery_suggestion(&self) -> Option<String> {
         match self {
             AppError::Serial(msg) => Some(format!(
-                "请检查串口连接是否正常，波特率设置是否正确。原始错误: {}", msg
+                "请检查串口连接是否正常，波特率设置是否正确。原始错误: {}",
+                msg
             )),
             AppError::Gpio(msg) => Some(format!(
-                "请检查GPIO引脚是否被其他程序占用，是否有权限访问。原始错误: {}", msg
+                "请检查GPIO引脚是否被其他程序占用，是否有权限访问。原始错误: {}",
+                msg
             )),
             AppError::Pwm(msg) => Some(format!(
-                "请检查PWM通道是否可用，频率设置是否在有效范围内。原始错误: {}", msg
+                "请检查PWM通道是否可用，频率设置是否在有效范围内。原始错误: {}",
+                msg
             )),
             AppError::Timeout(_) => Some("操作超时，请检查设备响应或网络连接".to_string()),
             AppError::CircuitBreakerOpen(_) => Some("服务暂时不可用，请稍后重试".to_string()),
@@ -368,7 +365,9 @@ impl ErrorCollector {
     }
 
     pub fn get_top_errors(&self, limit: usize) -> Vec<(String, ErrorStats)> {
-        let mut errors: Vec<_> = self.errors.read()
+        let mut errors: Vec<_> = self
+            .errors
+            .read()
             .iter()
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
@@ -415,7 +414,7 @@ impl RetryHandler {
     {
         let mut operation = std::pin::pin!(operation);
         let mut delay = self.initial_delay_ms;
-        
+
         for attempt in 1..=self.max_attempts {
             match operation.as_mut().await {
                 Ok(result) => return Ok(result),

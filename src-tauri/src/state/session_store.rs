@@ -1,9 +1,9 @@
+use chrono::{DateTime, Utc};
 use parking_lot::RwLock;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
 use tracing::{debug, info};
+use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct Session {
@@ -51,7 +51,7 @@ impl SessionStore {
     pub fn create_session(&self, user_id: Option<String>) -> String {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now();
-        
+
         let session = Session {
             id: id.clone(),
             started_at: now,
@@ -60,14 +60,14 @@ impl SessionStore {
             metadata: HashMap::new(),
             operation_count: 0,
         };
-        
+
         self.sessions.write().insert(id.clone(), session);
         self.operations.write().insert(id.clone(), VecDeque::new());
         self.undo_stack.write().insert(id.clone(), VecDeque::new());
         self.redo_stack.write().insert(id.clone(), VecDeque::new());
-        
+
         *self.current_session.write() = Some(id.clone());
-        
+
         info!("Session created: {}", id);
         id
     }
@@ -100,15 +100,22 @@ impl SessionStore {
         false
     }
 
-    pub fn record_operation(&self, command: String, duration_ms: u64, success: bool, error: Option<String>, result_preview: Option<String>) -> String {
+    pub fn record_operation(
+        &self,
+        command: String,
+        duration_ms: u64,
+        success: bool,
+        error: Option<String>,
+        result_preview: Option<String>,
+    ) -> String {
         let current = self.current_session.read().clone();
         let session_id = match current {
             Some(id) => id,
             None => return String::new(),
         };
-        
+
         let operation_id = Uuid::new_v4().to_string();
-        
+
         let operation = Operation {
             id: operation_id.clone(),
             session_id: session_id.clone(),
@@ -119,7 +126,7 @@ impl SessionStore {
             error,
             result_preview,
         };
-        
+
         let mut operations = self.operations.write();
         if let Some(ops) = operations.get_mut(&session_id) {
             if ops.len() >= self.max_operations_per_session {
@@ -127,13 +134,13 @@ impl SessionStore {
             }
             ops.push_back(operation.clone());
         }
-        
+
         let mut sessions = self.sessions.write();
         if let Some(session) = sessions.get_mut(&session_id) {
             session.last_activity = Utc::now();
             session.operation_count += 1;
         }
-        
+
         if success {
             drop(operations);
             drop(sessions);
@@ -147,8 +154,11 @@ impl SessionStore {
             let mut redo_stack = self.redo_stack.write();
             redo_stack.get_mut(&session_id).map(|s| s.clear());
         }
-        
-        debug!("Operation recorded for session {}: {}", session_id, operation_id);
+
+        debug!(
+            "Operation recorded for session {}: {}",
+            session_id, operation_id
+        );
         operation_id
     }
 
@@ -158,7 +168,7 @@ impl SessionStore {
             Some(ops) => ops,
             None => return Vec::new(),
         };
-        
+
         let limit = limit.unwrap_or(ops.len());
         ops.iter().rev().take(limit).cloned().collect()
     }
@@ -169,13 +179,15 @@ impl SessionStore {
             Some(id) => id,
             None => return None,
         };
-        
+
         let mut undo_stack = self.undo_stack.write();
         let operation = undo_stack.get_mut(&session_id)?.pop_back()?;
-        
+
         let mut redo_stack = self.redo_stack.write();
-        redo_stack.get_mut(&session_id)?.push_back(operation.clone());
-        
+        redo_stack
+            .get_mut(&session_id)?
+            .push_back(operation.clone());
+
         info!("Undo operation: {} in session {}", operation.id, session_id);
         Some(operation)
     }
@@ -186,13 +198,15 @@ impl SessionStore {
             Some(id) => id,
             None => return None,
         };
-        
+
         let mut redo_stack = self.redo_stack.write();
         let operation = redo_stack.get_mut(&session_id)?.pop_back()?;
-        
+
         let mut undo_stack = self.undo_stack.write();
-        undo_stack.get_mut(&session_id)?.push_back(operation.clone());
-        
+        undo_stack
+            .get_mut(&session_id)?
+            .push_back(operation.clone());
+
         info!("Redo operation: {} in session {}", operation.id, session_id);
         Some(operation)
     }
@@ -203,8 +217,13 @@ impl SessionStore {
             Some(id) => id,
             None => return false,
         };
-        
-        !self.undo_stack.read().get(&session_id).map(|s| s.is_empty()).unwrap_or(true)
+
+        !self
+            .undo_stack
+            .read()
+            .get(&session_id)
+            .map(|s| s.is_empty())
+            .unwrap_or(true)
     }
 
     pub fn can_redo(&self) -> bool {
@@ -213,8 +232,13 @@ impl SessionStore {
             Some(id) => id,
             None => return false,
         };
-        
-        !self.redo_stack.read().get(&session_id).map(|s| s.is_empty()).unwrap_or(true)
+
+        !self
+            .redo_stack
+            .read()
+            .get(&session_id)
+            .map(|s| s.is_empty())
+            .unwrap_or(true)
     }
 
     pub fn get_all_sessions(&self) -> Vec<Session> {
@@ -233,18 +257,22 @@ impl SessionStore {
         let session = sessions_lock.get(session_id)?;
         let ops_lock = self.operations.read();
         let operations = ops_lock.get(session_id)?;
-        
+
         let total_duration: u64 = operations.iter().map(|op| op.duration_ms).sum();
         let successful = operations.iter().filter(|op| op.success).count() as u64;
         let failed = operations.len() as u64 - successful;
-        
+
         Some(SessionStats {
             session_id: session_id.to_string(),
             operation_count: operations.len() as u64,
             successful_operations: successful,
             failed_operations: failed,
             total_duration_ms: total_duration,
-            average_duration_ms: if operations.is_empty() { 0 } else { total_duration / operations.len() as u64 },
+            average_duration_ms: if operations.is_empty() {
+                0
+            } else {
+                total_duration / operations.len() as u64
+            },
             session_duration_ms: (Utc::now() - session.started_at).num_milliseconds() as u64,
         })
     }

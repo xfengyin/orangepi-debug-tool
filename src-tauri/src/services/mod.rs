@@ -1,16 +1,16 @@
-pub mod serial_service;
 pub mod gpio_service;
 pub mod pwm_service;
+pub mod serial_service;
 
-pub use serial_service::SerialService;
 pub use gpio_service::GpioService;
 pub use pwm_service::PwmService;
+pub use serial_service::SerialService;
 
 use crate::adapters::DeviceAdapterRegistry;
 use crate::config::DeviceConfigSection;
 use crate::error::AppResult;
-use std::sync::Arc;
 use parking_lot::Mutex;
+use std::sync::Arc;
 
 pub struct ServiceManager {
     pub serial: SerialService,

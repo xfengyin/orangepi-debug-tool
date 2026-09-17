@@ -8,9 +8,12 @@ use crate::{AppError, AppResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub use gpio::{GpioManager, GpioConfig, GpioPinInfo, GpioEvent, GpioDirection, GpioPull, GpioTrigger, GpioInterruptConfig};
-pub use pwm::{PwmDevice, PwmConfig, PwmChannelInfo};
-pub use serial::{SerialManager, SerialConfig, SerialPortInfo, SerialPacket, SerialStats};
+pub use gpio::{
+    GpioConfig, GpioDirection, GpioEvent, GpioInterruptConfig, GpioManager, GpioPinInfo, GpioPull,
+    GpioTrigger,
+};
+pub use pwm::{PwmChannelInfo, PwmConfig, PwmDevice};
+pub use serial::{SerialConfig, SerialManager, SerialPacket, SerialPortInfo, SerialStats};
 
 /// Device information
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -42,27 +45,27 @@ impl DeviceManager {
             devices: HashMap::new(),
         }
     }
-    
+
     #[inline]
     pub fn register_device(&mut self, device: DeviceInfo) {
         self.devices.insert(device.id.clone(), device);
     }
-    
+
     #[inline]
     pub fn unregister_device(&mut self, device_id: &str) {
         self.devices.remove(device_id);
     }
-    
+
     #[inline]
     pub fn get_device(&self, device_id: &str) -> Option<&DeviceInfo> {
         self.devices.get(device_id)
     }
-    
+
     #[inline]
     pub fn get_all_devices(&self) -> Vec<&DeviceInfo> {
         self.devices.values().collect()
     }
-    
+
     #[inline]
     pub fn get_devices_by_type(&self, device_type: DeviceType) -> Vec<&DeviceInfo> {
         self.devices
@@ -70,7 +73,7 @@ impl DeviceManager {
             .filter(|d| d.device_type == device_type)
             .collect()
     }
-    
+
     #[inline]
     pub fn update_connection_status(&mut self, device_id: &str, connected: bool) -> AppResult<()> {
         let device = self

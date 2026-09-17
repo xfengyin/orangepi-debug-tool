@@ -1,12 +1,12 @@
-pub mod traits;
-pub mod registry;
-pub mod orangepi_zero3;
 pub mod generic_linux;
 pub mod mock;
+pub mod orangepi_zero3;
+pub mod registry;
+pub mod traits;
 
-pub use traits::*;
-pub use registry::DeviceAdapterRegistry;
 pub use crate::observability::health::HealthStatus;
+pub use registry::DeviceAdapterRegistry;
+pub use traits::*;
 
 use std::sync::Arc;
 
@@ -16,7 +16,7 @@ pub fn create_default_registry() -> DeviceAdapterRegistry {
 
 pub fn create_with_adapters() -> DeviceAdapterRegistry {
     let mut registry = DeviceAdapterRegistry::new();
-    
+
     let mock = Arc::new(mock::MockAdapter::new(0, 0.0));
     registry.register_serial(mock.clone());
     registry.register_gpio(mock.clone());
@@ -34,6 +34,6 @@ pub fn create_with_adapters() -> DeviceAdapterRegistry {
     {
         registry.register(mock);
     }
-    
+
     registry
 }

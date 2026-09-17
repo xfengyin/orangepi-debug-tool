@@ -1,5 +1,5 @@
 //! OrangePi Debug Tool - Core Library
-//! 
+//!
 //! A comprehensive debugging utility for OrangePi devices with support for:
 //! - Serial communication
 //! - GPIO control
@@ -19,11 +19,11 @@ pub mod services;
 pub mod state;
 pub mod utils;
 
-pub use adapters::{DeviceAdapterRegistry, DeviceAdapter, SerialAdapter, GpioAdapter, PwmAdapter};
+pub use adapters::{DeviceAdapter, DeviceAdapterRegistry, GpioAdapter, PwmAdapter, SerialAdapter};
 pub use config::{AppConfiguration, ConfigLoader, ConfigValidator};
 pub use error::{AppError, AppResult};
-pub use observability::{HealthChecker, MetricsCollector, AppTracer, HealthStatus, HealthState};
-pub use services::{ServiceManager, SerialService, GpioService, PwmService};
+pub use observability::{AppTracer, HealthChecker, HealthState, HealthStatus, MetricsCollector};
+pub use services::{GpioService, PwmService, SerialService, ServiceManager};
 pub use state::{AppState, ConfigStore, DeviceStore, SessionStore};
 
 use tauri::Manager;
@@ -33,13 +33,13 @@ use tracing::info;
 pub async fn initialize_app(app: &tauri::App) -> AppResult<()> {
     // Initialize logging
     utils::logging::init_logging()?;
-    
+
     info!("OrangePi Debug Tool v2.0.0 starting...");
-    
+
     // Initialize application state
     let state = AppState::new(app).await?;
     app.manage(state);
-    
+
     info!("Application initialized successfully");
     Ok(())
 }
@@ -47,11 +47,11 @@ pub async fn initialize_app(app: &tauri::App) -> AppResult<()> {
 /// Run cleanup tasks before application exit
 pub async fn cleanup_app(app: &tauri::AppHandle) -> AppResult<()> {
     info!("Application shutting down...");
-    
+
     if let Some(state) = app.try_state::<AppState>() {
         state.cleanup().await?;
     }
-    
+
     info!("Cleanup completed");
     Ok(())
 }

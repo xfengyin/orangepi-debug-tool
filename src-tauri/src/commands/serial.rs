@@ -36,10 +36,7 @@ pub async fn disconnect_serial(state: State<'_, AppState>) -> Result<(), String>
 
 /// Write data to serial port
 #[tauri::command]
-pub async fn write_serial(
-    data: Vec<u8>,
-    state: State<'_, AppState>,
-) -> Result<usize, String> {
+pub async fn write_serial(data: Vec<u8>, state: State<'_, AppState>) -> Result<usize, String> {
     Ok(data.len())
 }
 

@@ -67,44 +67,50 @@ impl DeviceAdapter for GenericLinuxAdapter {
     fn capabilities(&self) -> HashSet<DeviceCapability> {
         let mut caps = HashSet::new();
         caps.insert(DeviceCapability::Serial);
-        
+
         if self.detect_gpio_driver().is_some() {
             caps.insert(DeviceCapability::Gpio);
         }
-        
+
         if self.detect_pwm_driver().is_some() {
             caps.insert(DeviceCapability::Pwm);
         }
-        
+
         caps
     }
 
     async fn health_check(&self) -> AppResult<ComponentHealth> {
         let start = Instant::now();
-        
+
         let gpio_driver = self.detect_gpio_driver();
         let pwm_driver = self.detect_pwm_driver();
-        
+
         let message = match (&gpio_driver, &pwm_driver) {
             (Some(g), Some(p)) => format!("GPIO: {}, PWM: {}", g, p),
             (Some(g), None) => format!("GPIO: {} (PWM not available)", g),
             (None, Some(p)) => format!("PWM: {} (GPIO not available)", p),
             (None, None) => {
-                return Ok(ComponentHealth::unhealthy(self.id(), "No hardware devices detected")
-                    .with_latency(start.elapsed().as_millis() as u64));
+                return Ok(
+                    ComponentHealth::unhealthy(self.id(), "No hardware devices detected")
+                        .with_latency(start.elapsed().as_millis() as u64),
+                );
             }
         };
-        
+
         let has_serial = tokio_serial::available_ports()
             .map(|ports| !ports.is_empty())
             .unwrap_or(false);
-        
+
         if has_serial {
-            Ok(ComponentHealth::healthy(self.id())
-                .with_latency(start.elapsed().as_millis() as u64))
+            Ok(
+                ComponentHealth::healthy(self.id())
+                    .with_latency(start.elapsed().as_millis() as u64),
+            )
         } else {
-            Ok(ComponentHealth::degraded(self.id(), "Serial ports not available")
-                .with_latency(start.elapsed().as_millis() as u64))
+            Ok(
+                ComponentHealth::degraded(self.id(), "Serial ports not available")
+                    .with_latency(start.elapsed().as_millis() as u64),
+            )
         }
     }
 }
@@ -118,12 +124,12 @@ mod hardware {
     pub fn sysfs_gpio_export(pin: u32) -> AppResult<()> {
         let export_path = "/sys/class/gpio/export";
         let gpio_path = format!("/sys/class/gpio/gpio{}", pin);
-        
+
         if !Path::new(&gpio_path).exists() {
             fs::write(export_path, pin.to_string())
                 .map_err(|e| AppError::Gpio(format!("Failed to export pin {}: {}", pin, e)))?;
         }
-        
+
         Ok(())
     }
 
@@ -145,12 +151,13 @@ mod hardware {
         let value_path = format!("/sys/class/gpio/gpio{}/value", pin);
         let mut file = fs::File::open(&value_path)
             .map_err(|e| AppError::Gpio(format!("Failed to open value file: {}", e)))?;
-        
+
         let mut contents = String::new();
         file.read_to_string(&mut contents)
             .map_err(|e| AppError::Gpio(format!("Failed to read value: {}", e)))?;
-        
-        contents.trim()
+
+        contents
+            .trim()
             .parse::<u8>()
             .map_err(|e| AppError::Gpio(format!("Invalid value: {}", e)))
     }
@@ -159,24 +166,26 @@ mod hardware {
         let value_path = format!("/sys/class/gpio/gpio{}/value", pin);
         let mut file = fs::File::create(&value_path)
             .map_err(|e| AppError::Gpio(format!("Failed to open value file: {}", e)))?;
-        
+
         file.write_all(if value == 0 { b"0" } else { b"1" })
             .map_err(|e| AppError::Gpio(format!("Failed to write value: {}", e)))?;
-        
+
         Ok(())
     }
 
     pub fn sysfs_pwm_enable(channel: u32) -> AppResult<()> {
         let enable_path = format!("/sys/class/pwm/pwmchip0/pwm{}/enable", channel);
-        fs::write(&enable_path, "1")
-            .map_err(|e| AppError::Pwm(format!("Failed to enable PWM channel {}: {}", channel, e)))?;
+        fs::write(&enable_path, "1").map_err(|e| {
+            AppError::Pwm(format!("Failed to enable PWM channel {}: {}", channel, e))
+        })?;
         Ok(())
     }
 
     pub fn sysfs_pwm_disable(channel: u32) -> AppResult<()> {
         let enable_path = format!("/sys/class/pwm/pwmchip0/pwm{}/enable", channel);
-        fs::write(&enable_path, "0")
-            .map_err(|e| AppError::Pwm(format!("Failed to disable PWM channel {}: {}", channel, e)))?;
+        fs::write(&enable_path, "0").map_err(|e| {
+            AppError::Pwm(format!("Failed to disable PWM channel {}: {}", channel, e))
+        })?;
         Ok(())
     }
 

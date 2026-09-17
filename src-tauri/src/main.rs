@@ -1,5 +1,5 @@
 //! OrangePi Debug Tool - Main Entry Point
-//! 
+//!
 //! A comprehensive debugging utility for OrangePi devices
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]

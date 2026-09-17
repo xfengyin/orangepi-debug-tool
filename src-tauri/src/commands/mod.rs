@@ -32,7 +32,7 @@ impl<T> ApiResponse<T> {
             error_code: None,
         }
     }
-    
+
     /// Create error response
     #[inline]
     pub fn error<E: Into<String>>(message: E, code: Option<String>) -> Self {

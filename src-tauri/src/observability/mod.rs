@@ -6,11 +6,11 @@ pub use health::*;
 pub use metrics::*;
 pub use tracing::*;
 
-use std::sync::Arc;
-use parking_lot::RwLock;
 use dashmap::DashMap;
+use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 
 pub struct ObservabilityManager {
     health_checker: Arc<HealthChecker>,

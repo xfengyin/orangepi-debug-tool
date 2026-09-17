@@ -94,7 +94,7 @@ pub enum LogLevel {
 
 impl std::str::FromStr for LogLevel {
     type Err = String;
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "trace" => Ok(LogLevel::Trace),
@@ -184,11 +184,17 @@ impl Default for SerialDeviceConfig {
         Self {
             default_adapter: "generic_linux".to_string(),
             auto_detect: AutoDetectConfig::default(),
-            supported_baudrates: vec![300, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600],
+            supported_baudrates: vec![
+                300, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600,
+            ],
             buffer_size: 65536,
             read_timeout_ms: 1000,
             write_timeout_ms: 1000,
-            flow_controls: vec!["none".to_string(), "software".to_string(), "hardware".to_string()],
+            flow_controls: vec![
+                "none".to_string(),
+                "software".to_string(),
+                "hardware".to_string(),
+            ],
         }
     }
 }
@@ -253,8 +259,16 @@ impl Default for PwmDeviceConfig {
         Self {
             default_adapter: "orangepi_zero3".to_string(),
             channels: vec![
-                PwmChannelConfig { channel: 0, name: "PWM0".to_string(), enabled: false },
-                PwmChannelConfig { channel: 1, name: "PWM1".to_string(), enabled: false },
+                PwmChannelConfig {
+                    channel: 0,
+                    name: "PWM0".to_string(),
+                    enabled: false,
+                },
+                PwmChannelConfig {
+                    channel: 1,
+                    name: "PWM1".to_string(),
+                    enabled: false,
+                },
             ],
             default_frequency_hz: 1000,
             default_duty_cycle: 50.0,

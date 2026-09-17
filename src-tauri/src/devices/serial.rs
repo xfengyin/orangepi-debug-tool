@@ -117,12 +117,12 @@ impl SerialManager {
             stats: SerialStats::default(),
         }
     }
-    
+
     /// List available serial ports
     pub fn list_ports() -> AppResult<Vec<SerialPortInfo>> {
         let ports = tokio_serial::available_ports()
             .map_err(|e| AppError::Serial(format!("Failed to list ports: {}", e)))?;
-        
+
         let mut result = Vec::new();
         for port in ports {
             let info = SerialPortInfo {
@@ -136,14 +136,14 @@ impl SerialManager {
             };
             result.push(info);
         }
-        
+
         Ok(result)
     }
-    
+
     /// Auto-detect OrangePi serial port
     pub fn auto_detect() -> AppResult<Option<String>> {
         let ports = Self::list_ports()?;
-        
+
         // Look for common OrangePi USB-to-Serial adapters
         for port in ports {
             let port_lower = port.port_name.to_lowercase();
@@ -154,21 +154,21 @@ impl SerialManager {
                 return Ok(Some(port.port_name));
             }
         }
-        
+
         Ok(None)
     }
-    
+
     /// Detect baud rate by trying common rates
     pub async fn detect_baud_rate(&mut self, port_name: &str) -> AppResult<Option<u32>> {
         let common_rates = [115200, 9600, 57600, 38400, 19200, 4800];
-        
+
         for rate in &common_rates {
             let config = SerialConfig {
                 port_name: port_name.to_string(),
                 baud_rate: *rate,
                 ..Default::default()
             };
-            
+
             match self.connect(config, None).await {
                 Ok(_) => {
                     // Try to read some data to verify
@@ -179,10 +179,10 @@ impl SerialManager {
                 Err(_) => continue,
             }
         }
-        
+
         Ok(None)
     }
-    
+
     /// Connect to a serial port
     pub async fn connect(
         &mut self,
@@ -192,33 +192,36 @@ impl SerialManager {
         if self.is_connected {
             self.disconnect().await?;
         }
-        
-        info!("Connecting to serial port: {} @ {}", config.port_name, config.baud_rate);
-        
+
+        info!(
+            "Connecting to serial port: {} @ {}",
+            config.port_name, config.baud_rate
+        );
+
         let data_bits = match config.data_bits {
             5 => DataBits::Five,
             6 => DataBits::Six,
             7 => DataBits::Seven,
             _ => DataBits::Eight,
         };
-        
+
         let parity = match config.parity.to_lowercase().as_str() {
             "even" => Parity::Even,
             "odd" => Parity::Odd,
             _ => Parity::None,
         };
-        
+
         let stop_bits = match config.stop_bits {
             2 => StopBits::Two,
             _ => StopBits::One,
         };
-        
+
         let flow_control = match config.flow_control.to_lowercase().as_str() {
             "software" => FlowControl::Software,
             "hardware" => FlowControl::Hardware,
             _ => FlowControl::None,
         };
-        
+
         let port = tokio_serial::new(&config.port_name, config.baud_rate)
             .data_bits(data_bits)
             .parity(parity)
@@ -226,67 +229,67 @@ impl SerialManager {
             .flow_control(flow_control)
             .open_native_async()
             .map_err(|e| AppError::Serial(format!("Failed to open port: {}", e)))?;
-        
+
         // Create command channel
         let (command_tx, mut command_rx) = mpsc::channel::<SerialCommand>(100);
-        
+
         // Start background task
         let port = Arc::new(Mutex::new(port));
         let port_clone = Arc::clone(&port);
         let data_tx_clone = data_tx.clone();
-        
+
         tokio::spawn(async move {
             Self::serial_task(port_clone, data_tx_clone, &mut command_rx).await;
         });
-        
+
         self.port = Some(port);
         self.config = Some(config);
         self.data_tx = data_tx;
         self.command_tx = Some(command_tx);
         self.is_connected = true;
-        
+
         info!("Serial port connected successfully");
         Ok(())
     }
-    
+
     /// Disconnect from serial port
     pub async fn disconnect(&mut self) -> AppResult<()> {
         if !self.is_connected {
             return Ok(());
         }
-        
+
         info!("Disconnecting from serial port...");
-        
+
         if let Some(tx) = &self.command_tx {
             let (resp_tx, resp_rx) = oneshot::channel();
             let _ = tx.send(SerialCommand::Disconnect(resp_tx)).await;
             let _ = timeout(Duration::from_secs(2), resp_rx).await;
         }
-        
+
         if let Some(port) = self.port.take() {
             drop(port);
         }
-        
+
         self.command_tx = None;
         self.data_tx = None;
         self.is_connected = false;
-        
+
         info!("Serial port disconnected");
         Ok(())
     }
-    
+
     /// Write data to serial port
     pub async fn write(&mut self, data: &[u8]) -> AppResult<usize> {
         if !self.is_connected {
             return Err(AppError::Serial("Not connected".to_string()));
         }
-        
+
         if let Some(tx) = &self.command_tx {
             let (resp_tx, resp_rx) = oneshot::channel();
             tx.send(SerialCommand::Write(data.to_vec(), resp_tx))
                 .await
                 .map_err(|_| AppError::Serial("Command channel closed".to_string()))?;
-            
+
             match timeout(Duration::from_millis(5000), resp_rx).await {
                 Ok(Ok(result)) => {
                     if let Ok(n) = &result {
@@ -302,25 +305,25 @@ impl SerialManager {
             Err(AppError::Serial("Not connected".to_string()))
         }
     }
-    
+
     /// Check if connected
     #[inline]
     pub fn is_connected(&self) -> bool {
         self.is_connected
     }
-    
+
     /// Get current configuration
     #[inline]
     pub fn get_config(&self) -> Option<&SerialConfig> {
         self.config.as_ref()
     }
-    
+
     /// Get statistics
     #[inline]
     pub fn get_stats(&self) -> &SerialStats {
         &self.stats
     }
-    
+
     /// Background task for serial I/O
     async fn serial_task(
         port: Arc<Mutex<SerialStream>>,
@@ -328,7 +331,7 @@ impl SerialManager {
         command_rx: &mut mpsc::Receiver<SerialCommand>,
     ) {
         let mut buffer = BytesMut::with_capacity(4096);
-        
+
         loop {
             tokio::select! {
                 // Read from serial port
@@ -355,7 +358,7 @@ impl SerialManager {
                         }
                     }
                 }
-                
+
                 // Handle commands
                 Some(cmd) = command_rx.recv() => {
                     match cmd {
@@ -374,10 +377,10 @@ impl SerialManager {
                 }
             }
         }
-        
+
         debug!("Serial background task ended");
     }
-    
+
     #[inline]
     fn current_timestamp() -> u64 {
         std::time::SystemTime::now()

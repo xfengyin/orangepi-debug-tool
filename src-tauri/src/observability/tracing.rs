@@ -151,7 +151,11 @@ impl Span {
     }
 
     pub fn duration(&self) -> Option<Duration> {
-        self.end_time.map(|end| end.signed_duration_since(self.start_time).to_std().unwrap_or_default())
+        self.end_time.map(|end| {
+            end.signed_duration_since(self.start_time)
+                .to_std()
+                .unwrap_or_default()
+        })
     }
 }
 
@@ -196,12 +200,12 @@ impl AppTracer {
         }
 
         let mut spans = self.spans.write();
-        
+
         if spans.len() >= self.max_spans {
             let half_len = spans.len() / 2;
             spans.drain(0..half_len);
         }
-        
+
         spans.push(span);
     }
 
@@ -210,7 +214,8 @@ impl AppTracer {
     }
 
     pub fn get_spans_by_trace(&self, trace_id: &TraceId) -> Vec<Span> {
-        self.spans.read()
+        self.spans
+            .read()
             .iter()
             .filter(|s| &s.trace_id == trace_id)
             .cloned()
@@ -235,18 +240,19 @@ impl AppTracer {
 
     pub fn get_trace_tree(&self, trace_id: &TraceId) -> Option<TraceTree> {
         let spans = self.get_spans_by_trace(trace_id);
-        
+
         if spans.is_empty() {
             return None;
         }
 
-        let root = spans.iter()
-            .find(|s| s.parent_span_id.is_none())?
-            .clone();
+        let root = spans.iter().find(|s| s.parent_span_id.is_none())?.clone();
 
         Some(TraceTree {
             root,
-            children: spans.into_iter().filter(|s| s.parent_span_id.is_some()).collect(),
+            children: spans
+                .into_iter()
+                .filter(|s| s.parent_span_id.is_some())
+                .collect(),
         })
     }
 }
@@ -285,12 +291,12 @@ impl TraceContext {
 
     pub fn from_hex(hex: &str) -> Option<Self> {
         let parts: Vec<&str> = hex.split(':').collect();
-        
+
         if parts.len() >= 2 {
             let trace_id = TraceId::from_hex(parts[0])?;
             let span_id = parts.get(1).and_then(|s| SpanId::from_hex(s));
             let sampled = parts.get(2).map(|s| *s == "1").unwrap_or(true);
-            
+
             Some(Self {
                 trace_id,
                 span_id,

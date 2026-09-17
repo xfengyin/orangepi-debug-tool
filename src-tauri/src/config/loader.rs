@@ -1,9 +1,9 @@
+use notify::Watcher;
 use parking_lot::RwLock;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{debug, error, info, warn};
-use notify::Watcher;
 
 use crate::error::{AppError, AppResult};
 
@@ -78,7 +78,10 @@ impl ConfigLoader {
 
     pub async fn load(&self) -> Result<AppConfiguration, ConfigError> {
         if !self.config_path.exists() {
-            info!("Config file not found, using defaults: {}", self.config_path.display());
+            info!(
+                "Config file not found, using defaults: {}",
+                self.config_path.display()
+            );
             let default_config = AppConfiguration::default();
             *self.cache.write() = default_config.clone();
             return Ok(default_config);
@@ -86,7 +89,8 @@ impl ConfigLoader {
 
         let content = tokio::fs::read_to_string(&self.config_path).await?;
 
-        let extension = self.config_path
+        let extension = self
+            .config_path
             .extension()
             .and_then(|e| e.to_str())
             .unwrap_or("yaml");
@@ -98,12 +102,16 @@ impl ConfigLoader {
         };
 
         *self.cache.write() = config.clone();
-        info!("Configuration loaded successfully from: {}", self.config_path.display());
+        info!(
+            "Configuration loaded successfully from: {}",
+            self.config_path.display()
+        );
         Ok(config)
     }
 
     pub async fn save(&self, config: &AppConfiguration) -> Result<(), ConfigError> {
-        let extension = self.config_path
+        let extension = self
+            .config_path
             .extension()
             .and_then(|e| e.to_str())
             .unwrap_or("yaml");
@@ -145,13 +153,15 @@ impl ConfigLoader {
         let cache = Arc::new(RwLock::new(self.cache.read().clone()));
 
         std::thread::spawn(move || {
-            let mut watcher = match notify::recommended_watcher(move |res: Result<notify::Event, notify::Error>| {
-                if let Ok(event) = res {
-                    if event.kind.is_modify() {
-                        debug!("Config file changed: {:?}", event);
+            let mut watcher = match notify::recommended_watcher(
+                move |res: Result<notify::Event, notify::Error>| {
+                    if let Ok(event) = res {
+                        if event.kind.is_modify() {
+                            debug!("Config file changed: {:?}", event);
+                        }
                     }
-                }
-            }) {
+                },
+            ) {
                 Ok(w) => w,
                 Err(e) => {
                     error!("Failed to create config watcher: {}", e);
@@ -215,9 +225,11 @@ pub struct ConfigWatcher {
 
 impl ConfigWatcher {
     pub fn new(path: PathBuf) -> std::io::Result<Self> {
-        let last_modified = std::fs::metadata(&path)?
-            .modified()?;
-        Ok(Self { path, last_modified })
+        let last_modified = std::fs::metadata(&path)?.modified()?;
+        Ok(Self {
+            path,
+            last_modified,
+        })
     }
 
     pub fn has_changed(&self) -> bool {

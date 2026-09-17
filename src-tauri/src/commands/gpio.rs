@@ -15,10 +15,7 @@ pub async fn list_gpio_pins(state: State<'_, AppState>) -> Result<Vec<GpioPinInf
 
 /// Configure a GPIO pin
 #[tauri::command]
-pub async fn configure_gpio(
-    config: GpioConfig,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+pub async fn configure_gpio(config: GpioConfig, state: State<'_, AppState>) -> Result<(), String> {
     let mut gpio = state.gpio.write();
     gpio.configure_pin(config).map_err(|e| e.to_string())
 }
@@ -32,11 +29,7 @@ pub async fn read_gpio(pin: u32, state: State<'_, AppState>) -> Result<u8, Strin
 
 /// Write GPIO pin value
 #[tauri::command]
-pub async fn write_gpio(
-    pin: u32,
-    value: u8,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+pub async fn write_gpio(pin: u32, value: u8, state: State<'_, AppState>) -> Result<(), String> {
     let mut gpio = state.gpio.write();
     gpio.write_pin(pin, value).map_err(|e| e.to_string())
 }

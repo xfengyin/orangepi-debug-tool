@@ -28,15 +28,15 @@ pub trait DeviceAdapter: Send + Sync {
     fn id(&self) -> &'static str;
     fn name(&self) -> &str;
     fn capabilities(&self) -> HashSet<DeviceCapability>;
-    
+
     async fn health_check(&self) -> AppResult<ComponentHealth> {
         Ok(ComponentHealth::healthy(self.id()))
     }
-    
+
     async fn initialize(&self) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn shutdown(&self) -> AppResult<()> {
         Ok(())
     }
@@ -151,48 +151,48 @@ use serde::{Deserialize, Serialize};
 #[async_trait]
 pub trait SerialAdapter: DeviceAdapter {
     async fn list_ports(&self) -> AppResult<Vec<SerialPortInfo>>;
-    
+
     async fn connect(&self, config: SerialConfig) -> AppResult<SerialHandle>;
-    
+
     async fn disconnect(&self, handle: SerialHandle) -> AppResult<()>;
-    
+
     async fn read(&self, handle: &SerialHandle, buffer: &mut [u8]) -> AppResult<usize>;
-    
+
     async fn write(&self, handle: &SerialHandle, data: &[u8]) -> AppResult<usize>;
-    
+
     async fn set_baudrate(&self, handle: &SerialHandle, baudrate: u32) -> AppResult<()>;
 }
 
 #[async_trait]
 pub trait GpioAdapter: DeviceAdapter {
     async fn list_pins(&self) -> AppResult<Vec<GpioPinInfo>>;
-    
+
     async fn export_pin(&self, pin: u32) -> AppResult<()>;
-    
+
     async fn unexport_pin(&self, pin: u32) -> AppResult<()>;
-    
+
     async fn set_direction(&self, pin: u32, direction: GpioDirection) -> AppResult<()>;
-    
+
     async fn set_pull(&self, pin: u32, pull: GpioPull) -> AppResult<()>;
-    
+
     async fn read_pin(&self, pin: u32) -> AppResult<u8>;
-    
+
     async fn write_pin(&self, pin: u32, value: u8) -> AppResult<()>;
-    
+
     async fn enable_interrupt(&self, pin: u32, trigger: GpioTrigger) -> AppResult<()>;
-    
+
     async fn disable_interrupt(&self, pin: u32) -> AppResult<()>;
 }
 
 #[async_trait]
 pub trait PwmAdapter: DeviceAdapter {
     async fn list_channels(&self) -> AppResult<Vec<PwmChannelInfo>>;
-    
+
     async fn configure(&self, config: PwmConfig) -> AppResult<()>;
-    
+
     async fn enable_channel(&self, chip: u32, channel: u32, enabled: bool) -> AppResult<()>;
-    
+
     async fn set_frequency(&self, chip: u32, channel: u32, frequency: f64) -> AppResult<()>;
-    
+
     async fn set_duty_cycle(&self, chip: u32, channel: u32, duty_cycle: f64) -> AppResult<()>;
 }

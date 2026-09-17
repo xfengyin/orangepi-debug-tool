@@ -15,10 +15,7 @@ pub async fn list_pwm_channels(state: State<'_, AppState>) -> Result<Vec<PwmChan
 
 /// Configure a PWM channel
 #[tauri::command]
-pub async fn configure_pwm(
-    config: PwmConfig,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+pub async fn configure_pwm(config: PwmConfig, state: State<'_, AppState>) -> Result<(), String> {
     let mut pwm = state.pwm.write();
     pwm.configure(config).map_err(|e| e.to_string())
 }
@@ -32,7 +29,8 @@ pub async fn set_pwm_frequency(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let mut pwm = state.pwm.write();
-    pwm.set_frequency(chip, channel, frequency).map_err(|e| e.to_string())
+    pwm.set_frequency(chip, channel, frequency)
+        .map_err(|e| e.to_string())
 }
 
 /// Set PWM duty cycle
@@ -44,7 +42,8 @@ pub async fn set_pwm_duty_cycle(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let mut pwm = state.pwm.write();
-    pwm.set_duty_cycle(chip, channel, duty_cycle).map_err(|e| e.to_string())
+    pwm.set_duty_cycle(chip, channel, duty_cycle)
+        .map_err(|e| e.to_string())
 }
 
 /// Enable/disable PWM channel
@@ -56,7 +55,8 @@ pub async fn set_pwm_enabled(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let mut pwm = state.pwm.write();
-    pwm.set_enabled(chip, channel, enabled).map_err(|e| e.to_string())
+    pwm.set_enabled(chip, channel, enabled)
+        .map_err(|e| e.to_string())
 }
 
 /// Get PWM channel info
@@ -67,7 +67,8 @@ pub async fn get_pwm_info(
     state: State<'_, AppState>,
 ) -> Result<Option<PwmChannelInfo>, String> {
     let pwm = state.pwm.read();
-    pwm.get_channel_info(chip, channel).map_err(|e| e.to_string())
+    pwm.get_channel_info(chip, channel)
+        .map_err(|e| e.to_string())
 }
 
 /// Play a waveform pattern
@@ -79,7 +80,8 @@ pub async fn play_pwm_waveform(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let mut pwm = state.pwm.write();
-    pwm.play_waveform(chip, channel, &waveform_type).map_err(|e| e.to_string())
+    pwm.play_waveform(chip, channel, &waveform_type)
+        .map_err(|e| e.to_string())
 }
 
 /// Unconfigure a PWM channel
@@ -90,5 +92,6 @@ pub async fn unconfigure_pwm(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let mut pwm = state.pwm.write();
-    pwm.unconfigure_channel(chip, channel).map_err(|e| e.to_string())
+    pwm.unconfigure_channel(chip, channel)
+        .map_err(|e| e.to_string())
 }

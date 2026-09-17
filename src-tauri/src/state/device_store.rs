@@ -4,8 +4,8 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{debug, info};
 
+use crate::adapters::{DeviceCapability, DeviceInfo};
 use crate::error::{AppError, AppResult};
-use crate::adapters::{DeviceInfo, DeviceCapability};
 
 #[derive(Debug, Clone)]
 pub struct DeviceState {
@@ -27,12 +27,28 @@ pub enum DeviceType {
 
 #[derive(Debug, Clone)]
 pub enum DeviceEvent {
-    Connected { device_id: String },
-    Disconnected { device_id: String },
-    Error { device_id: String, error: String },
-    DataReceived { device_id: String, data: Vec<u8> },
-    DataTransmitted { device_id: String, data: Vec<u8> },
-    StateChanged { device_id: String, state: HashMap<String, String> },
+    Connected {
+        device_id: String,
+    },
+    Disconnected {
+        device_id: String,
+    },
+    Error {
+        device_id: String,
+        error: String,
+    },
+    DataReceived {
+        device_id: String,
+        data: Vec<u8>,
+    },
+    DataTransmitted {
+        device_id: String,
+        data: Vec<u8>,
+    },
+    StateChanged {
+        device_id: String,
+        state: HashMap<String, String>,
+    },
 }
 
 pub struct DeviceStore {
@@ -45,7 +61,7 @@ pub struct DeviceStore {
 impl DeviceStore {
     pub fn new() -> Self {
         let (event_tx, event_rx) = mpsc::channel(1000);
-        
+
         Self {
             devices: Arc::new(RwLock::new(HashMap::new())),
             event_sender: event_tx,
@@ -62,7 +78,7 @@ impl DeviceStore {
             last_activity: None,
             metadata: HashMap::new(),
         };
-        
+
         self.devices.write().insert(info.id.clone(), state);
         info!("Device registered: {}", info.id);
     }
@@ -77,33 +93,43 @@ impl DeviceStore {
 
     pub fn set_connected(&self, device_id: &str, connected: bool) -> AppResult<()> {
         let mut devices = self.devices.write();
-        
+
         if let Some(device) = devices.get_mut(device_id) {
             device.connected = connected;
             device.last_activity = Some(chrono::Utc::now());
-            
+
             let event = if connected {
-                DeviceEvent::Connected { device_id: device_id.to_string() }
+                DeviceEvent::Connected {
+                    device_id: device_id.to_string(),
+                }
             } else {
-                DeviceEvent::Disconnected { device_id: device_id.to_string() }
+                DeviceEvent::Disconnected {
+                    device_id: device_id.to_string(),
+                }
             };
-            
+
             drop(devices);
             let _ = self.event_sender.try_send(event);
             Ok(())
         } else {
-            Err(AppError::NotFound(format!("Device {} not found", device_id)))
+            Err(AppError::NotFound(format!(
+                "Device {} not found",
+                device_id
+            )))
         }
     }
 
     pub fn update_activity(&self, device_id: &str) -> AppResult<()> {
         let mut devices = self.devices.write();
-        
+
         if let Some(device) = devices.get_mut(device_id) {
             device.last_activity = Some(chrono::Utc::now());
             Ok(())
         } else {
-            Err(AppError::NotFound(format!("Device {} not found", device_id)))
+            Err(AppError::NotFound(format!(
+                "Device {} not found",
+                device_id
+            )))
         }
     }
 
@@ -116,7 +142,8 @@ impl DeviceStore {
     }
 
     pub fn get_connected_devices(&self) -> Vec<DeviceState> {
-        self.devices.read()
+        self.devices
+            .read()
             .values()
             .filter(|d| d.connected)
             .cloned()
@@ -124,7 +151,8 @@ impl DeviceStore {
     }
 
     pub fn get_devices_by_type(&self, device_type: DeviceType) -> Vec<DeviceState> {
-        self.devices.read()
+        self.devices
+            .read()
             .values()
             .filter(|d| d.device_type == device_type)
             .cloned()

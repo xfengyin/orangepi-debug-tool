@@ -7,9 +7,8 @@ use tracing_subscriber::{EnvFilter, Layer};
 
 /// Initialize application logging
 pub fn init_logging() -> AppResult<()> {
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info"));
-    
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+
     let fmt_layer = tracing_subscriber::fmt::layer()
         .with_target(true)
         .with_thread_ids(true)
@@ -18,12 +17,12 @@ pub fn init_logging() -> AppResult<()> {
         .with_line_number(true)
         .with_level(true)
         .compact();
-    
+
     tracing_subscriber::registry()
         .with(filter)
         .with(fmt_layer)
         .try_init()
         .ok();
-    
+
     Ok(())
 }

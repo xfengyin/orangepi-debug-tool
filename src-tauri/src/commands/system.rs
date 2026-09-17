@@ -46,15 +46,14 @@ pub struct SystemInfo {
 /// Check if running on OrangePi
 #[tauri::command]
 pub async fn check_orangepi() -> Result<bool, String> {
-    let is_orangepi = std::path::Path::new("/sys/firmware/devicetree/base/model")
-        .exists() && {
+    let is_orangepi = std::path::Path::new("/sys/firmware/devicetree/base/model").exists() && {
         if let Ok(content) = std::fs::read_to_string("/sys/firmware/devicetree/base/model") {
             content.to_lowercase().contains("orange")
         } else {
             false
         }
     };
-    
+
     Ok(is_orangepi)
 }
 
@@ -66,14 +65,13 @@ pub async fn open_link(url: String) -> Result<(), String> {
 
 /// Save log data
 #[tauri::command]
-pub async fn save_log(
-    filename: String,
-    data: String,
-) -> Result<(), String> {
+pub async fn save_log(filename: String, data: String) -> Result<(), String> {
     use std::io::Write;
-    
+
     let path = std::path::Path::new(&filename);
-    let mut file = std::fs::File::create(path).map_err(|e| format!("Failed to create file: {}", e))?;
-    file.write_all(data.as_bytes()).map_err(|e| format!("Failed to write log: {}", e))?;
+    let mut file =
+        std::fs::File::create(path).map_err(|e| format!("Failed to create file: {}", e))?;
+    file.write_all(data.as_bytes())
+        .map_err(|e| format!("Failed to write log: {}", e))?;
     Ok(())
 }

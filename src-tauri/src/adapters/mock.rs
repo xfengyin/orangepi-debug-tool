@@ -1,11 +1,14 @@
-use std::collections::HashMap;
-use std::sync::Arc;
+use super::traits::{
+    DeviceAdapter, DeviceCapability, DeviceInfo, GpioAdapter, GpioDirection, GpioPinInfo, GpioPull,
+    GpioTrigger, PwmAdapter, PwmChannelInfo, PwmConfig, SerialAdapter, SerialConfig, SerialHandle,
+};
+use crate::error::{AppError, AppResult};
+use crate::observability::health::ComponentHealth;
 use async_trait::async_trait;
 use parking_lot::Mutex;
-use crate::error::{AppError, AppResult};
-use super::traits::{SerialAdapter, SerialConfig, SerialHandle, DeviceAdapter, DeviceCapability, DeviceInfo, GpioAdapter, GpioDirection, GpioPull, GpioTrigger, GpioPinInfo, PwmAdapter, PwmConfig, PwmChannelInfo};
+use std::collections::HashMap;
 use std::collections::HashSet;
-use crate::observability::health::ComponentHealth;
+use std::sync::Arc;
 
 pub struct MockAdapter {
     pub delay_ms: u64,
@@ -29,13 +32,13 @@ impl MockAdapter {
             state: Arc::new(Mutex::new(MockState::default())),
         }
     }
-    
+
     async fn simulate_delay(&self) {
         if self.delay_ms > 0 {
             tokio::time::sleep(tokio::time::Duration::from_millis(self.delay_ms)).await;
         }
     }
-    
+
     fn should_inject_error(&self) -> bool {
         use std::time::{SystemTime, UNIX_EPOCH};
         let nanos = SystemTime::now()
@@ -51,19 +54,21 @@ impl DeviceAdapter for MockAdapter {
     fn id(&self) -> &'static str {
         "mock"
     }
-    
+
     fn name(&self) -> &str {
         "Mock Adapter"
     }
-    
+
     fn capabilities(&self) -> HashSet<DeviceCapability> {
         vec![
             DeviceCapability::Serial,
             DeviceCapability::Gpio,
             DeviceCapability::Pwm,
-        ].into_iter().collect()
+        ]
+        .into_iter()
+        .collect()
     }
-    
+
     async fn health_check(&self) -> AppResult<ComponentHealth> {
         Ok(ComponentHealth::healthy(self.id()))
     }
@@ -83,18 +88,18 @@ impl SerialAdapter for MockAdapter {
             },
         ])
     }
-    
+
     async fn connect(&self, config: SerialConfig) -> AppResult<SerialHandle> {
         self.simulate_delay().await;
-        
+
         if self.should_inject_error() {
             return Err(AppError::Serial("Mock connection error".to_string()));
         }
-        
+
         let mut state = self.state.lock();
         state.serial_connected = true;
         state.serial_buffer.clear();
-        
+
         Ok(SerialHandle {
             port_name: config.port_name.clone(),
             config,
@@ -102,39 +107,39 @@ impl SerialAdapter for MockAdapter {
             stream: unsafe { std::mem::zeroed() },
         })
     }
-    
+
     async fn disconnect(&self, _handle: SerialHandle) -> AppResult<()> {
         self.simulate_delay().await;
-        
+
         let mut state = self.state.lock();
         state.serial_connected = false;
         state.serial_buffer.clear();
-        
+
         Ok(())
     }
-    
+
     async fn read(&self, _handle: &SerialHandle, buffer: &mut [u8]) -> AppResult<usize> {
         self.simulate_delay().await;
-        
+
         let mut state = self.state.lock();
         if state.serial_buffer.is_empty() {
             return Ok(0);
         }
-        
+
         let len = std::cmp::min(buffer.len(), state.serial_buffer.len());
         buffer[..len].copy_from_slice(&state.serial_buffer[..len]);
         state.serial_buffer.drain(..len);
         Ok(len)
     }
-    
+
     async fn write(&self, _handle: &SerialHandle, data: &[u8]) -> AppResult<usize> {
         self.simulate_delay().await;
-        
+
         let mut state = self.state.lock();
         state.serial_buffer.extend_from_slice(data);
         Ok(data.len())
     }
-    
+
     async fn set_baudrate(&self, _handle: &SerialHandle, _baudrate: u32) -> AppResult<()> {
         self.simulate_delay().await;
         Ok(())
@@ -146,35 +151,35 @@ impl GpioAdapter for MockAdapter {
     async fn list_pins(&self) -> AppResult<Vec<GpioPinInfo>> {
         Ok(vec![])
     }
-    
+
     async fn export_pin(&self, _pin: u32) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn unexport_pin(&self, _pin: u32) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn set_direction(&self, _pin: u32, _direction: GpioDirection) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn set_pull(&self, _pin: u32, _pull: GpioPull) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn read_pin(&self, _pin: u32) -> AppResult<u8> {
         Ok(0)
     }
-    
+
     async fn write_pin(&self, _pin: u32, _value: u8) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn enable_interrupt(&self, _pin: u32, _trigger: GpioTrigger) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn disable_interrupt(&self, _pin: u32) -> AppResult<()> {
         Ok(())
     }
@@ -185,19 +190,19 @@ impl PwmAdapter for MockAdapter {
     async fn list_channels(&self) -> AppResult<Vec<PwmChannelInfo>> {
         Ok(vec![])
     }
-    
+
     async fn configure(&self, _config: PwmConfig) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn set_frequency(&self, _chip: u32, _channel: u32, _frequency: f64) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn set_duty_cycle(&self, _chip: u32, _channel: u32, _duty_cycle: f64) -> AppResult<()> {
         Ok(())
     }
-    
+
     async fn enable_channel(&self, _chip: u32, _channel: u32, _enabled: bool) -> AppResult<()> {
         Ok(())
     }

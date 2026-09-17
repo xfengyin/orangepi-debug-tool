@@ -60,7 +60,7 @@ pub struct MessageHeader {
 impl MessageHeader {
     pub const SIZE: usize = 18;
     pub const MAGIC: u16 = 0x4F50; // "OP"
-    
+
     #[inline]
     pub fn new(msg_type: MessageType, length: u32, sequence: u32) -> Self {
         Self {
@@ -71,7 +71,7 @@ impl MessageHeader {
             timestamp: Self::current_timestamp(),
         }
     }
-    
+
     #[inline]
     pub fn encode(&self, buf: &mut BytesMut) {
         buf.put_u16(self.magic);
@@ -80,23 +80,23 @@ impl MessageHeader {
         buf.put_u32(self.sequence);
         buf.put_u64(self.timestamp);
     }
-    
+
     #[inline]
     pub fn decode(buf: &mut BytesMut) -> Option<Self> {
         if buf.len() < Self::SIZE {
             return None;
         }
-        
+
         let magic = buf.get_u16();
         if magic != Self::MAGIC {
             return None;
         }
-        
+
         let msg_type = MessageType::from_u8(buf.get_u8())?;
         let length = buf.get_u32();
         let sequence = buf.get_u32();
         let timestamp = buf.get_u64();
-        
+
         Some(Self {
             magic,
             msg_type,
@@ -105,7 +105,7 @@ impl MessageHeader {
             timestamp,
         })
     }
-    
+
     #[inline]
     fn current_timestamp() -> u64 {
         std::time::SystemTime::now()
@@ -127,7 +127,7 @@ impl BinaryCodec {
         buf.extend_from_slice(data);
         buf.freeze()
     }
-    
+
     #[inline]
     pub fn encode_gpio_state(pin: u32, value: u8, sequence: u32) -> Bytes {
         let mut buf = BytesMut::with_capacity(MessageHeader::SIZE + 5);
@@ -137,7 +137,7 @@ impl BinaryCodec {
         buf.put_u8(value);
         buf.freeze()
     }
-    
+
     #[inline]
     pub fn encode_pwm_state(channel: u32, duty_cycle: f32, sequence: u32) -> Bytes {
         let mut buf = BytesMut::with_capacity(MessageHeader::SIZE + 8);

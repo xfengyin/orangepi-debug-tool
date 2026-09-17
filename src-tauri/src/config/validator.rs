@@ -20,7 +20,10 @@ impl ConfigValidator {
         Ok(())
     }
 
-    pub fn validate_system_config(&self, config: &SystemConfig) -> Result<(), ConfigValidationError> {
+    pub fn validate_system_config(
+        &self,
+        config: &SystemConfig,
+    ) -> Result<(), ConfigValidationError> {
         if config.max_concurrent_tasks == 0 {
             return Err(ConfigValidationError::InvalidValue {
                 field: "system.max_concurrent_tasks".to_string(),
@@ -66,7 +69,10 @@ impl ConfigValidator {
         Ok(())
     }
 
-    pub fn validate_circuit_breaker(&self, config: &CircuitBreakerConfig) -> Result<(), ConfigValidationError> {
+    pub fn validate_circuit_breaker(
+        &self,
+        config: &CircuitBreakerConfig,
+    ) -> Result<(), ConfigValidationError> {
         if config.enabled {
             if config.failure_threshold == 0 {
                 return Err(ConfigValidationError::InvalidValue {
@@ -86,14 +92,20 @@ impl ConfigValidator {
         Ok(())
     }
 
-    pub fn validate_device_config(&self, config: &DeviceConfigSection) -> Result<(), ConfigValidationError> {
+    pub fn validate_device_config(
+        &self,
+        config: &DeviceConfigSection,
+    ) -> Result<(), ConfigValidationError> {
         self.validate_serial_config(&config.serial)?;
         self.validate_gpio_config(&config.gpio)?;
         self.validate_pwm_config(&config.pwm)?;
         Ok(())
     }
 
-    pub fn validate_serial_config(&self, config: &SerialDeviceConfig) -> Result<(), ConfigValidationError> {
+    pub fn validate_serial_config(
+        &self,
+        config: &SerialDeviceConfig,
+    ) -> Result<(), ConfigValidationError> {
         if config.supported_baudrates.is_empty() {
             return Err(ConfigValidationError::InvalidValue {
                 field: "devices.serial.supported_baudrates".to_string(),
@@ -101,7 +113,10 @@ impl ConfigValidator {
             });
         }
 
-        if !config.supported_baudrates.contains(&config.auto_detect.default_baudrate) {
+        if !config
+            .supported_baudrates
+            .contains(&config.auto_detect.default_baudrate)
+        {
             return Err(ConfigValidationError::InvalidValue {
                 field: "devices.serial.auto_detect.default_baudrate".to_string(),
                 message: "must be in supported_baudrates".to_string(),
@@ -115,7 +130,8 @@ impl ConfigValidator {
             });
         }
 
-        let valid_flow_controls: HashSet<&str> = ["none", "software", "hardware"].into_iter().collect();
+        let valid_flow_controls: HashSet<&str> =
+            ["none", "software", "hardware"].into_iter().collect();
         for fc in &config.flow_controls {
             if !valid_flow_controls.contains(fc.as_str()) {
                 return Err(ConfigValidationError::InvalidValue {
@@ -128,7 +144,10 @@ impl ConfigValidator {
         Ok(())
     }
 
-    pub fn validate_gpio_config(&self, config: &GpioDeviceConfig) -> Result<(), ConfigValidationError> {
+    pub fn validate_gpio_config(
+        &self,
+        config: &GpioDeviceConfig,
+    ) -> Result<(), ConfigValidationError> {
         let valid_pulls: HashSet<&str> = ["none", "up", "down"].into_iter().collect();
         if !valid_pulls.contains(config.default_pull.as_str()) {
             return Err(ConfigValidationError::InvalidValue {
@@ -136,20 +155,26 @@ impl ConfigValidator {
                 message: "must be one of: none, up, down".to_string(),
             });
         }
-        
+
         for pin in &config.pin_definitions {
             if pin.gpio_number > 255 {
                 return Err(ConfigValidationError::InvalidValue {
-                    field: format!("devices.gpio.pin_definitions[{}].gpio_number", pin.physical_pin),
+                    field: format!(
+                        "devices.gpio.pin_definitions[{}].gpio_number",
+                        pin.physical_pin
+                    ),
                     message: "must be between 0 and 255".to_string(),
                 });
             }
         }
-        
+
         Ok(())
     }
 
-    pub fn validate_pwm_config(&self, config: &PwmDeviceConfig) -> Result<(), ConfigValidationError> {
+    pub fn validate_pwm_config(
+        &self,
+        config: &PwmDeviceConfig,
+    ) -> Result<(), ConfigValidationError> {
         if config.default_frequency_hz == 0 {
             return Err(ConfigValidationError::InvalidValue {
                 field: "devices.pwm.default_frequency_hz".to_string(),
@@ -177,7 +202,10 @@ impl ConfigValidator {
         Ok(())
     }
 
-    pub fn validate_security_config(&self, config: &SecurityConfig) -> Result<(), ConfigValidationError> {
+    pub fn validate_security_config(
+        &self,
+        config: &SecurityConfig,
+    ) -> Result<(), ConfigValidationError> {
         if config.enable_audit_log && config.audit_log_path.is_empty() {
             return Err(ConfigValidationError::InvalidValue {
                 field: "security.audit_log_path".to_string(),
@@ -188,7 +216,10 @@ impl ConfigValidator {
         Ok(())
     }
 
-    pub fn validate_observability_config(&self, config: &ObservabilityConfig) -> Result<(), ConfigValidationError> {
+    pub fn validate_observability_config(
+        &self,
+        config: &ObservabilityConfig,
+    ) -> Result<(), ConfigValidationError> {
         if config.metrics_export_interval_seconds == 0 {
             return Err(ConfigValidationError::InvalidValue {
                 field: "observability.metrics_export_interval_seconds".to_string(),

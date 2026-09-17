@@ -116,7 +116,7 @@ impl Histogram {
     pub fn observe(&self, value: f64) {
         self.sum.fetch_add(value as u64, Ordering::Relaxed);
         self.count.fetch_add(1, Ordering::Relaxed);
-        
+
         let bounds = get_default_bounds();
         for (i, bound) in bounds.iter().enumerate() {
             if value <= *bound {
@@ -135,7 +135,10 @@ impl Histogram {
     }
 
     pub fn get_buckets(&self) -> Vec<u64> {
-        self.buckets.iter().map(|b| b.load(Ordering::Relaxed)).collect()
+        self.buckets
+            .iter()
+            .map(|b| b.load(Ordering::Relaxed))
+            .collect()
     }
 }
 
@@ -146,7 +149,9 @@ impl Default for Histogram {
 }
 
 fn get_default_bounds() -> Vec<f64> {
-    vec![0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+    vec![
+        0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0,
+    ]
 }
 
 #[derive(Debug)]
@@ -172,7 +177,7 @@ impl MetricsCollector {
             help: help.to_string(),
             metric_type: "counter".to_string(),
         };
-        
+
         let mut counters = self.counters.write();
         if !counters.contains_key(name) {
             counters.insert(name.to_string(), Counter::new());
@@ -186,7 +191,7 @@ impl MetricsCollector {
             help: help.to_string(),
             metric_type: "gauge".to_string(),
         };
-        
+
         let mut gauges = self.gauges.write();
         if !gauges.contains_key(name) {
             gauges.insert(name.to_string(), Gauge::new());
@@ -200,7 +205,7 @@ impl MetricsCollector {
             help: help.to_string(),
             metric_type: "histogram".to_string(),
         };
-        
+
         let mut histograms = self.histograms.write();
         if !histograms.contains_key(name) {
             histograms.insert(name.to_string(), Histogram::new(&get_default_bounds()));
@@ -235,11 +240,11 @@ impl MetricsCollector {
     pub fn gather(&self) -> String {
         let mut output = String::new();
         let registry = self.registry.read();
-        
+
         for family in registry.iter() {
             output.push_str(&format!("# HELP {} {}\n", family.name, family.help));
             output.push_str(&format!("# TYPE {} {}\n", family.name, family.metric_type));
-            
+
             match family.metric_type.as_str() {
                 "counter" => {
                     let counters = self.counters.read();
@@ -258,20 +263,31 @@ impl MetricsCollector {
                     if let Some(histogram) = histograms.get(&family.name) {
                         for (i, count) in histogram.get_buckets().iter().enumerate() {
                             if i < get_default_bounds().len() {
-                                output.push_str(&format!("{}_bucket{{le=\"{}\"}} {}\n", 
-                                    family.name, get_default_bounds()[i], count));
+                                output.push_str(&format!(
+                                    "{}_bucket{{le=\"{}\"}} {}\n",
+                                    family.name,
+                                    get_default_bounds()[i],
+                                    count
+                                ));
                             }
                         }
-                        output.push_str(&format!("{}_bucket{{le=\"+Inf\"}} {}\n", 
-                            family.name, histogram.get_count()));
+                        output.push_str(&format!(
+                            "{}_bucket{{le=\"+Inf\"}} {}\n",
+                            family.name,
+                            histogram.get_count()
+                        ));
                         output.push_str(&format!("{}_sum {}\n", family.name, histogram.get_sum()));
-                        output.push_str(&format!("{}_count {}\n", family.name, histogram.get_count()));
+                        output.push_str(&format!(
+                            "{}_count {}\n",
+                            family.name,
+                            histogram.get_count()
+                        ));
                     }
                 }
                 _ => {}
             }
         }
-        
+
         output
     }
 }

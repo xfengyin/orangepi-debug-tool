@@ -1,9 +1,9 @@
-pub mod schema;
 pub mod loader;
+pub mod schema;
 pub mod validator;
 
-pub use schema::*;
 pub use loader::*;
+pub use schema::*;
 pub use validator::*;
 
 use std::path::PathBuf;
@@ -21,7 +21,7 @@ impl ConfigPaths {
         let config_dir = dirs::config_dir()
             .unwrap_or_else(|| PathBuf::from("."))
             .join(app_name);
-        
+
         Self {
             config_dir: config_dir.clone(),
             main_config: config_dir.join("config.yaml"),
