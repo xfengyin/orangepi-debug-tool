@@ -15,6 +15,21 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    # 跨大版本迁移需协同升级 + 代码迁移（Grid API / eslint flat config / tsgo），
+    # 单独 bump 一个包只会 peer 冲突或破坏构建，留待专门立项处理。
+    ignore:
+      - dependency-name: "typescript"
+        versions: [">=6.0.0"]
+      - dependency-name: "@mui/material"
+        versions: [">=6.0.0"]
+      - dependency-name: "@mui/icons-material"
+        versions: [">=6.0.0"]
+      - dependency-name: "eslint"
+        versions: [">=9.0.0"]
+      - dependency-name: "@typescript-eslint/parser"
+        versions: [">=8.0.0"]
+      - dependency-name: "@typescript-eslint/eslint-plugin"
+        versions: [">=8.0.0"]
 
   # Rust 依赖
   - package-ecosystem: "cargo"
