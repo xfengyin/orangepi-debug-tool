@@ -30,6 +30,10 @@ updates:
         versions: [">=8.0.0"]
       - dependency-name: "@typescript-eslint/eslint-plugin"
         versions: [">=8.0.0"]
+      - dependency-name: "react-router-dom"
+        versions: [">=7.0.0"]
+      - dependency-name: "eslint-plugin-react-hooks"
+        versions: [">=5.0.0"]
 
   # Rust 依赖
   - package-ecosystem: "cargo"
@@ -46,6 +50,12 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    # sqlx 0.8+ / reqwest 0.13+ 是破坏性 API 变更，留待专门立项。
+    ignore:
+      - dependency-name: "sqlx"
+        versions: [">=0.8.0"]
+      - dependency-name: "reqwest"
+        versions: [">=0.13.0"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -59,3 +69,6 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    ignore:
+      - dependency-name: "actions/cache"
+        versions: [">=6.0.0"]
