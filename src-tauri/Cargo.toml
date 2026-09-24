@@ -82,7 +82,7 @@ config = "0.14"
 dirs = "5.0"
 
 # HTTP Client (for updates)
-reqwest = { version = "0.12", features = ["json"], optional = true }
+reqwest = { version = "0.13", features = ["json"], optional = true }
 
 [dev-dependencies]
 tempfile = "3.10"
