@@ -69,6 +69,3 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
-    ignore:
-      - dependency-name: "actions/cache"
-        versions: [">=6.0.0"]
