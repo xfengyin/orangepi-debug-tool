@@ -52,7 +52,7 @@
     "react-virtualized": "^9.22.5",
     "date-fns": "^3.6.0",
     "lodash-es": "^4.17.21",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",
