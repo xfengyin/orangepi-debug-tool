@@ -2,21 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== Cursor Dark Design System ===== */
+/* ===== 全局基础样式（颜色令牌由 src/theme/tokens.ts 统一维护，此处仅保留 CSS 层必需项） ===== */
 
-/* Global Reset - Dark Background */
-html, body {
-  background-color: #0a0a0a;
-  color: #ffffff;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+:root {
+  /* 与 lightTokens 对齐 */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  --selection-bg: rgba(255, 107, 53, 0.2);
+  --focus-ring: rgba(255, 107, 53, 0.35);
+}
+
+html.dark {
+  /* 与 darkTokens 对齐 */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.12);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.22);
+  --selection-bg: rgba(255, 107, 53, 0.3);
+  --focus-ring: rgba(255, 107, 53, 0.45);
+}
+
+html,
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar - Dark Theme */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -24,198 +38,40 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--scrollbar-thumb-hover);
 }
 
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-/* Custom Selection - Purple accent */
+/* Selection - 品牌橙 */
 ::selection {
-  background: rgba(124, 58, 237, 0.3);
+  background: var(--selection-bg);
 }
 
-/* Monospace font for data/code */
-.font-mono {
-  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
-}
-
-/* Smooth Transitions - Cursor Style */
-*, *::before, *::after {
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-}
-
-/* ===== Cursor-style Elevation System ===== */
-.elevation-1 {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03);
-}
-
-.elevation-2 {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-.elevation-3 {
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-/* ===== Terminal Styles - Cursor Dark ===== */
-.terminal {
-  background: #0a0a0a;
-  color: #e4e4e7;
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  line-height: 1.6;
-  font-size: 13px;
-}
-
-.terminal .error {
-  color: #f87171;
-}
-
-.terminal .success {
-  color: #4ade80;
-}
-
-.terminal .warning {
-  color: #fbbf24;
-}
-
-.terminal .info {
-  color: #60a5fa;
-}
-
-.terminal .command {
-  color: #c4b5fd;
-}
-
-/* ===== Animations ===== */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(124, 58, 237, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* ===== Status Indicators - Cursor Style ===== */
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.status-dot.connected {
-  background: #4ade80;
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
-}
-
-.status-dot.disconnected {
-  background: #71717a;
-}
-
-.status-dot.pending {
-  background: #fbbf24;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* ===== Focus Styles - Gradient Border ===== */
+/* Focus - 统一品牌色焦点环 */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.5), 0 0 0 4px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
-/* ===== Gradient Utilities ===== */
-.gradient-text {
-  background: linear-gradient(135deg, #7c3aed, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-border {
-  border: 1px solid transparent;
-  background-clip: padding-box;
-  position: relative;
-}
-
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(59, 130, 246, 0.5));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.gradient-bg {
-  background: linear-gradient(135deg, #7c3aed, #3b82f6);
-}
-
-.gradient-bg-hover:hover {
-  background: linear-gradient(135deg, #6d28d9, #2563eb);
-}
-
-/* ===== Responsive Utilities ===== */
-@media (max-width: 768px) {
-  .hide-mobile {
-    display: none !important;
-  }
-}
-
-@media (min-width: 769px) {
-  .show-mobile {
-    display: none !important;
-  }
-}
-
-/* ===== Print Styles ===== */
-@media print {
-  .no-print {
-    display: none !important;
-  }
+/* 平滑过渡（仅颜色类属性，避免布局抖动） */
+*,
+*::before,
+*::after {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
 }

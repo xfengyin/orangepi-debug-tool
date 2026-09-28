@@ -69,12 +69,6 @@ export interface GpioPinState {
   interrupt_trigger?: string;
 }
 
-export interface GpioEvent {
-  pin: number;
-  value: number;
-  timestamp: number;
-}
-
 // ==================== PWM Types ====================
 
 export interface PwmConfig {
@@ -155,20 +149,6 @@ export interface ApiResponse<T> {
 
 export type ViewType = 'overview' | 'serial' | 'gpio' | 'pwm' | 'log' | 'settings';
 
-export interface ThemeColors {
-  primary: string;
-  secondary: string;
-  background: string;
-  surface: string;
-  error: string;
-  warning: string;
-  success: string;
-  info: string;
-  text: string;
-  textSecondary: string;
-  border: string;
-}
-
 export interface ToastMessage {
   id: string;
   type: 'success' | 'error' | 'warning' | 'info';
@@ -176,26 +156,3 @@ export interface ToastMessage {
   duration?: number;
 }
 
-// ==================== Chart Types ====================
-
-export interface ChartDataPoint {
-  timestamp: number;
-  value: number;
-  label?: string;
-}
-
-export interface ChartSeries {
-  name: string;
-  data: ChartDataPoint[];
-  color?: string;
-}
-
-// ==================== Device Types ====================
-
-export interface DeviceInfo {
-  id: string;
-  name: string;
-  type: 'serial' | 'gpio' | 'pwm' | 'i2c' | 'spi';
-  connected: boolean;
-  metadata: Record<string, string>;
-}
