@@ -48,7 +48,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.12",
-    "recharts": "^2.12.3",
+    "recharts": "^3.10.1",
     "react-virtualized": "^9.22.5",
     "date-fns": "^4.4.0",
     "lodash-es": "^4.17.21",
