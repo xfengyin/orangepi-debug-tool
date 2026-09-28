@@ -2,9 +2,8 @@ import React from 'react';
 import {
   Box,
   Typography,
-  Paper,
-  Grid,
   Card,
+  Grid,
   CardActionArea,
   CardContent,
   Stack,
@@ -20,28 +19,31 @@ import {
 } from '@mui/icons-material';
 import { useAppStore, useSerialStore, useGpioStore, usePwmStore, useLogStore } from '../../stores';
 import type { ViewType } from '../../types';
+import { monoFontFamily } from '../../theme';
+import { useUiTokens } from '../../theme/useUiTokens';
 
 const OverviewPage: React.FC = () => {
+  const t = useUiTokens();
   const { setCurrentView, systemInfo, isOrangePi } = useAppStore();
   const serial = useSerialStore();
   const gpio = useGpioStore();
   const pwm = usePwmStore();
   const log = useLogStore();
 
-  const cards: { id: ViewType; title: string; desc: string; icon: React.ReactNode; accent: string }[] = [
-    { id: 'serial', title: '串口调试', desc: `${serial.ports.length} 个端口 · ${serial.status.connected ? '已连接' : '未连接'}`, icon: <UsbIcon />, accent: '#3b82f6' },
-    { id: 'gpio', title: 'GPIO 控制', desc: `${gpio.pins.length} 个引脚`, icon: <GpioIcon />, accent: '#7c3aed' },
-    { id: 'pwm', title: 'PWM 输出', desc: `${pwm.channels.length} 个通道`, icon: <PwmIcon />, accent: '#f59e0b' },
-    { id: 'log', title: '数据日志', desc: `${log.entries.length} 条日志`, icon: <LogIcon />, accent: '#4ade80' },
-    { id: 'settings', title: '设置', desc: '主题 / 配置 / 系统信息', icon: <SettingsIcon />, accent: '#a1a1aa' },
+  const cards: { id: ViewType; title: string; desc: string; icon: React.ReactNode }[] = [
+    { id: 'serial', title: '串口调试', desc: `${serial.ports.length} 个端口 · ${serial.status.connected ? '已连接' : '未连接'}`, icon: <UsbIcon /> },
+    { id: 'gpio', title: 'GPIO 控制', desc: `${gpio.pins.length} 个引脚`, icon: <GpioIcon /> },
+    { id: 'pwm', title: 'PWM 输出', desc: `${pwm.channels.length} 个通道`, icon: <PwmIcon /> },
+    { id: 'log', title: '数据日志', desc: `${log.entries.length} 条日志`, icon: <LogIcon /> },
+    { id: 'settings', title: '设置', desc: '主题 / 配置 / 系统信息', icon: <SettingsIcon /> },
   ];
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ mb: 0.5, color: '#ffffff' }}>
+      <Typography variant="h5" sx={{ mb: 0.5, color: t.text }}>
         OrangePi Debug Tool
       </Typography>
-      <Typography sx={{ color: '#71717a', mb: 3, fontSize: '0.9rem' }}>
+      <Typography sx={{ color: t.textMuted, mb: 3, fontSize: '0.9rem' }}>
         {isOrangePi ? '已检测到 OrangePi 设备' : '未检测到 OrangePi 设备'} · v{systemInfo?.version || '2.0.0'}
       </Typography>
 
@@ -50,22 +52,17 @@ const OverviewPage: React.FC = () => {
           <Grid item xs={12} sm={6} md={4} key={card.id}>
             <Card
               sx={{
-                backgroundColor: '#141414',
-                border: '1px solid #2a2a2a',
-                borderRadius: 2,
-                '&:hover': {
-                  borderColor: card.accent,
-                  boxShadow: `0 0 16px ${card.accent}33`,
-                },
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': { borderColor: t.brand },
               }}
             >
               <CardActionArea onClick={() => setCurrentView(card.id)}>
                 <CardContent sx={{ p: 2.5 }}>
-                  <Box sx={{ color: card.accent, fontSize: 28, mb: 1 }}>{card.icon}</Box>
-                  <Typography variant="subtitle1" sx={{ color: '#ffffff', fontWeight: 600 }}>
+                  <Box sx={{ color: t.textMuted, fontSize: 26, mb: 1 }}>{card.icon}</Box>
+                  <Typography variant="subtitle1" sx={{ color: t.text }}>
                     {card.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#71717a', mt: 0.5, fontSize: '0.8rem' }}>
+                  <Typography variant="body2" sx={{ color: t.textMuted, mt: 0.5 }}>
                     {card.desc}
                   </Typography>
                 </CardContent>
@@ -75,35 +72,28 @@ const OverviewPage: React.FC = () => {
         ))}
       </Grid>
 
-      <Paper
-        sx={{
-          mt: 3,
-          p: 2,
-          backgroundColor: '#101010',
-          border: '1px solid #2a2a2a',
-          borderRadius: 2,
-        }}
-      >
+      <Card sx={{ mt: 3, p: 2 }}>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-          <CpuIcon sx={{ color: '#a78bfa', fontSize: 18 }} />
-          <Typography variant="subtitle2" sx={{ color: '#e4e4e7' }}>系统信息</Typography>
+          <CpuIcon sx={{ color: t.brand, fontSize: 18 }} />
+          <Typography variant="subtitle2" sx={{ color: t.text }}>系统信息</Typography>
         </Stack>
-        <Divider sx={{ borderColor: '#2a2a2a', mb: 1.5 }} />
+        <Divider sx={{ mb: 1.5 }} />
         <Grid container spacing={2}>
           <Grid item xs={4}><Stat label="平台" value={systemInfo?.platform || '--'} /></Grid>
           <Grid item xs={4}><Stat label="架构" value={systemInfo?.arch || '--'} /></Grid>
           <Grid item xs={4}><Stat label="版本" value={systemInfo?.version || '--'} /></Grid>
         </Grid>
-      </Paper>
+      </Card>
     </Box>
   );
 };
 
 function Stat({ label, value }: { label: string; value: string }) {
+  const t = useUiTokens();
   return (
     <Box>
-      <Typography sx={{ color: '#71717a', fontSize: '0.75rem', fontFamily: 'monospace' }}>{label}</Typography>
-      <Typography sx={{ color: '#e4e4e7', fontSize: '0.95rem', fontWeight: 600 }}>{value}</Typography>
+      <Typography sx={{ color: t.textMuted, fontSize: '0.75rem', fontFamily: monoFontFamily }}>{label}</Typography>
+      <Typography sx={{ color: t.text, fontSize: '0.95rem', fontWeight: 600 }}>{value}</Typography>
     </Box>
   );
 }
