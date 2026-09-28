@@ -20,6 +20,8 @@ import {
 } from '@mui/icons-material';
 import { useAppStore } from '../../stores';
 import type { ViewType } from '../../types';
+import { monoFontFamily } from '../../theme';
+import { useUiTokens } from '../../theme/useUiTokens';
 
 interface Command {
   id: ViewType;
@@ -43,6 +45,7 @@ interface CommandPaletteProps {
 }
 
 const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
+  const t = useUiTokens();
   const { setCurrentView } = useAppStore();
   const [query, setQuery] = useState('');
 
@@ -66,21 +69,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="sm"
-      PaperProps={{
-        sx: {
-          backgroundColor: '#121820',
-          backgroundImage: 'none',
-          border: '1px solid #232C38',
-          borderRadius: 2,
-          boxShadow: '0 0 30px rgba(255, 107, 53, 0.08)',
-        },
-      }}
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogContent sx={{ p: 2 }}>
         <TextField
           autoFocus
@@ -90,36 +79,20 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
           onChange={(e) => setQuery(e.target.value)}
           sx={{
             mb: 1.5,
-            input: { color: '#E5EAF3', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.9rem' },
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#0A0E14',
-              '& fieldset': { borderColor: '#232C38' },
-              '&:hover fieldset': { borderColor: '#FF6B35' },
-            },
+            input: { fontFamily: monoFontFamily, fontSize: '0.9rem' },
           }}
         />
         <List dense sx={{ p: 0 }}>
           {filtered.length === 0 && (
-            <Typography sx={{ color: '#7A8798', fontSize: '0.85rem', p: 1 }}>
+            <Typography sx={{ color: t.textMuted, fontSize: '0.85rem', p: 1 }}>
               没有匹配的命令
             </Typography>
           )}
           {filtered.map((cmd) => (
-            <ListItemButton
-              key={cmd.id}
-              onClick={() => handleSelect(cmd.id)}
-              sx={{
-                borderRadius: 1,
-                mx: 0,
-                color: '#E5EAF3',
-                '&:hover': { backgroundColor: 'rgba(255, 107, 53, 0.08)', color: '#FF8F5E' },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'inherit', minWidth: 34 }}>
-                {cmd.icon}
-              </ListItemIcon>
+            <ListItemButton key={cmd.id} onClick={() => handleSelect(cmd.id)} sx={{ mx: 0 }}>
+              <ListItemIcon sx={{ color: 'inherit', minWidth: 34 }}>{cmd.icon}</ListItemIcon>
               <ListItemText primary={cmd.label} primaryTypographyProps={{ fontSize: '0.9rem' }} />
-              <Box component="span" sx={{ color: '#7A8798', fontSize: '0.7rem', fontFamily: 'monospace' }}>
+              <Box component="span" sx={{ color: t.textMuted, fontSize: '0.7rem', fontFamily: monoFontFamily }}>
                 go:{cmd.id}
               </Box>
             </ListItemButton>

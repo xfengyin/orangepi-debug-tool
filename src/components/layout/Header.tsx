@@ -15,58 +15,36 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useThemeStore, useAppStore, useSerialStore } from '../../stores';
+import { monoFontFamily } from '../../theme';
+import { useUiTokens } from '../../theme/useUiTokens';
+import StatusDot from '../common/StatusDot';
 
 interface HeaderProps {
   onOpenCommand: () => void;
 }
 
 const Header: React.FC<HeaderProps> = memo(({ onOpenCommand }) => {
+  const t = useUiTokens();
   const { mode, toggleMode } = useThemeStore();
   const { toggleSidebar, systemInfo } = useAppStore();
   const { refreshPorts, status, config } = useSerialStore();
 
   return (
-    <AppBar
-      position="static"
-      elevation={0}
-      sx={{
-        backgroundColor: '#0a0a0a',
-        backgroundImage: 'none',
-        borderBottom: '1px solid #2a2a2a',
-      }}
-    >
-      <Toolbar variant="dense" sx={{ minHeight: '40px !important' }}>
-        <IconButton
-          edge="start"
-          onClick={toggleSidebar}
-          sx={{
-            mr: 2,
-            color: '#71717a',
-            '&:hover': { color: '#e4e4e7', backgroundColor: 'rgba(255,255,255,0.05)' },
-          }}
-        >
+    <AppBar position="static" elevation={0}>
+      <Toolbar variant="dense" sx={{ minHeight: '44px !important' }}>
+        <IconButton edge="start" onClick={toggleSidebar} sx={{ mr: 2 }}>
           <MenuIcon fontSize="small" />
         </IconButton>
 
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
           {status.connected && config ? (
             <>
-              <Box
-                component="span"
-                sx={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: '50%',
-                  backgroundColor: '#4ade80',
-                  boxShadow: '0 0 6px rgba(74, 222, 128, 0.5)',
-                  flexShrink: 0,
-                }}
-              />
+              <StatusDot state="connected" />
               <Typography
                 sx={{
                   fontSize: '0.8rem',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  color: '#a1a1aa',
+                  fontFamily: monoFontFamily,
+                  color: t.textSecondary,
                   letterSpacing: '0.02em',
                 }}
               >
@@ -77,8 +55,8 @@ const Header: React.FC<HeaderProps> = memo(({ onOpenCommand }) => {
             <Typography
               sx={{
                 fontSize: '0.8rem',
-                fontFamily: '"JetBrains Mono", monospace',
-                color: '#52525b',
+                fontFamily: monoFontFamily,
+                color: t.textMuted,
                 letterSpacing: '0.02em',
               }}
             >
@@ -89,57 +67,36 @@ const Header: React.FC<HeaderProps> = memo(({ onOpenCommand }) => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {/* Command palette */}
-          <IconButton
-            onClick={onOpenCommand}
-            size="small"
-            sx={{
-              color: '#71717a',
-              '&:hover': { color: '#e4e4e7', backgroundColor: 'rgba(255,255,255,0.05)' },
-            }}
-          >
+          <IconButton onClick={onOpenCommand} size="small">
             <SearchIcon fontSize="small" />
           </IconButton>
 
           {/* Refresh button */}
           <Tooltip title="刷新设备" arrow>
-            <IconButton
-              onClick={refreshPorts}
-              size="small"
-              sx={{
-                color: '#71717a',
-                '&:hover': { color: '#e4e4e7', backgroundColor: 'rgba(255,255,255,0.05)' },
-              }}
-            >
+            <IconButton onClick={refreshPorts} size="small">
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
           {/* Theme toggle */}
           <Tooltip title={mode === 'light' ? '深色模式' : '浅色模式'} arrow>
-            <IconButton
-              onClick={toggleMode}
-              size="small"
-              sx={{
-                color: '#71717a',
-                '&:hover': { color: '#e4e4e7', backgroundColor: 'rgba(255,255,255,0.05)' },
-              }}
-            >
+            <IconButton onClick={toggleMode} size="small">
               {mode === 'light' ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
             </IconButton>
           </Tooltip>
 
-          {/* Version - Mono style */}
+          {/* Version */}
           <Typography
             sx={{
               ml: 1,
               fontSize: '0.65rem',
-              fontFamily: '"JetBrains Mono", monospace',
-              color: '#52525b',
+              fontFamily: monoFontFamily,
+              color: t.textMuted,
               px: 1,
               py: 0.25,
               borderRadius: 1,
-              border: '1px solid #2a2a2a',
-              backgroundColor: '#141414',
+              border: `1px solid ${t.border}`,
+              backgroundColor: t.surfaceAlt,
             }}
           >
             v{systemInfo?.version || '2.0.0'}
