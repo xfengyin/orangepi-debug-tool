@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import {
   LineChart,
   Line,
@@ -10,8 +10,12 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useSerialStore } from '../../stores';
+import { monoFontFamily } from '../../theme';
+import { useUiTokens } from '../../theme/useUiTokens';
+import EmptyState from '../common/EmptyState';
 
 const SerialChart: React.FC = memo(() => {
+  const t = useUiTokens();
   const { dataBuffer } = useSerialStore();
 
   // Parse numeric data from serial buffer
@@ -32,67 +36,39 @@ const SerialChart: React.FC = memo(() => {
   }, [dataBuffer]);
 
   if (chartData.length === 0) {
-    return (
-      <Box
-        sx={{
-          height: 200,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography
-          sx={{
-            color: '#52525b',
-            fontSize: '0.8rem',
-            fontFamily: '"JetBrains Mono", monospace',
-          }}
-        >
-          Waiting for data...
-        </Typography>
-      </Box>
-    );
+    return <EmptyState title="Waiting for data..." height={200} icon={null} />;
   }
 
   return (
     <Box sx={{ width: '100%', height: 200 }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="rgba(255, 255, 255, 0.05)"
-          />
+          <CartesianGrid strokeDasharray="3 3" stroke={t.chart.grid} />
           <XAxis dataKey="time" hide />
           <YAxis
             domain={[0, 255]}
-            tick={{ fill: '#71717a', fontSize: 10, fontFamily: '"JetBrains Mono", monospace' }}
-            axisLine={{ stroke: '#2a2a2a' }}
-            tickLine={{ stroke: '#2a2a2a' }}
+            tick={{ fill: t.chart.axis, fontSize: 10, fontFamily: monoFontFamily }}
+            axisLine={{ stroke: t.border }}
+            tickLine={{ stroke: t.border }}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1a1a1a',
-              border: '1px solid #2a2a2a',
-              borderRadius: 6,
-              color: '#e4e4e7',
+              backgroundColor: t.chart.tooltipBg,
+              border: `1px solid ${t.chart.tooltipBorder}`,
+              borderRadius: 8,
+              color: t.text,
               fontSize: '0.75rem',
-              fontFamily: '"JetBrains Mono", monospace',
+              fontFamily: monoFontFamily,
             }}
           />
           <Line
             type="monotone"
             dataKey="value"
-            stroke="url(#cursorGradient)"
+            stroke={t.chart.rx}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
           />
-          <defs>
-            <linearGradient id="cursorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#7c3aed" />
-              <stop offset="100%" stopColor="#3b82f6" />
-            </linearGradient>
-          </defs>
         </LineChart>
       </ResponsiveContainer>
     </Box>

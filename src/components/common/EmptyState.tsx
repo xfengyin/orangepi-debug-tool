@@ -8,7 +8,7 @@ interface EmptyStateProps {
   title: string;
   /** 次级说明（等宽字体，可选） */
   hint?: string;
-  /** 自定义图标节点；不传则渲染默认 ">_" 终端块 */
+  /** 自定义图标节点；不传则渲染默认 ">_" 终端块，传 null 则不显示图标 */
   icon?: React.ReactNode;
   height?: number | string;
 }
@@ -28,7 +28,7 @@ const EmptyState: React.FC<EmptyStateProps> = memo(({ title, hint, icon, height 
         gap: 1,
       }}
     >
-      {icon !== undefined ? (
+      {icon === null ? null : icon !== undefined ? (
         icon
       ) : (
         <Box

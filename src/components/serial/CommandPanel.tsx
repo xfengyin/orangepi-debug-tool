@@ -14,6 +14,8 @@ import {
 } from '@mui/material';
 import { Delete as DeleteIcon, Add as AddIcon, Send as SendIcon } from '@mui/icons-material';
 import { useSerialStore, useLogStore, useAppStore } from '../../stores';
+import { monoFontFamily } from '../../theme';
+import { useUiTokens } from '../../theme/useUiTokens';
 
 interface Command {
   id: string;
@@ -29,6 +31,7 @@ const defaultCommands: Command[] = [
 ];
 
 const CommandPanel: React.FC = memo(() => {
+  const t = useUiTokens();
   const [commands, setCommands] = useState<Command[]>(defaultCommands);
   const [newName, setNewName] = useState('');
   const [newCommand, setNewCommand] = useState('');
@@ -74,23 +77,10 @@ const CommandPanel: React.FC = memo(() => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#1a1a1a',
-        border: '1px solid #2a2a2a',
       }}
     >
       <CardContent sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            color: '#a1a1aa',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            mb: 1.5,
-            fontFamily: '"JetBrains Mono", monospace',
-          }}
-        >
+        <Typography variant="overline" sx={{ display: 'block', color: t.textMuted, mb: 1.5 }}>
           Quick Commands
         </Typography>
         <List dense sx={{ py: 0 }}>
@@ -104,10 +94,7 @@ const CommandPanel: React.FC = memo(() => {
                     size="small"
                     onClick={() => handleSendCommand(cmd)}
                     disabled={!status.connected}
-                    sx={{
-                      color: status.connected ? '#7c3aed' : '#3f3f46',
-                      '&:hover': { color: '#a78bfa', backgroundColor: 'rgba(124, 58, 237, 0.1)' },
-                    }}
+                    sx={{ color: status.connected ? t.brand : t.textMuted }}
                   >
                     <SendIcon fontSize="small" />
                   </IconButton>
@@ -116,8 +103,8 @@ const CommandPanel: React.FC = memo(() => {
                     size="small"
                     onClick={() => handleDeleteCommand(cmd.id)}
                     sx={{
-                      color: '#52525b',
-                      '&:hover': { color: '#f87171', backgroundColor: 'rgba(239, 68, 68, 0.1)' },
+                      color: t.textMuted,
+                      '&:hover': { color: t.danger.main, backgroundColor: t.danger.soft },
                     }}
                   >
                     <DeleteIcon fontSize="small" />
@@ -125,19 +112,12 @@ const CommandPanel: React.FC = memo(() => {
                 </Box>
               }
               disablePadding
-              sx={{
-                mb: 0.5,
-              }}
+              sx={{ mb: 0.5 }}
             >
               <ListItemButton
                 onClick={() => handleSendCommand(cmd)}
                 disabled={!status.connected}
-                sx={{
-                  borderRadius: 1,
-                  py: 0.75,
-                  px: 1.5,
-                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.03)' },
-                }}
+                sx={{ borderRadius: 1, py: 0.75, px: 1.5 }}
               >
                 <ListItemText
                   primary={cmd.name}
@@ -145,12 +125,12 @@ const CommandPanel: React.FC = memo(() => {
                   primaryTypographyProps={{
                     fontSize: '0.85rem',
                     fontWeight: 500,
-                    color: '#e4e4e7',
+                    color: t.text,
                   }}
                   secondaryTypographyProps={{
                     fontSize: '0.7rem',
-                    fontFamily: '"JetBrains Mono", monospace',
-                    color: '#71717a',
+                    fontFamily: monoFontFamily,
+                    color: t.textMuted,
                   }}
                 />
               </ListItemButton>
@@ -159,12 +139,7 @@ const CommandPanel: React.FC = memo(() => {
         </List>
       </CardContent>
 
-      <Box
-        sx={{
-          p: 2,
-          borderTop: '1px solid #2a2a2a',
-        }}
-      >
+      <Box sx={{ p: 2, borderTop: `1px solid ${t.border}` }}>
         <TextField
           size="small"
           placeholder="名称"
@@ -181,7 +156,7 @@ const CommandPanel: React.FC = memo(() => {
           fullWidth
           sx={{ mb: 1.5 }}
           InputProps={{
-            sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: '0.8rem' },
+            sx: { fontFamily: monoFontFamily, fontSize: '0.8rem' },
           }}
         />
         <Button
@@ -191,15 +166,6 @@ const CommandPanel: React.FC = memo(() => {
           onClick={handleAddCommand}
           disabled={!newName || !newCommand}
           variant="outlined"
-          sx={{
-            borderColor: '#2a2a2a',
-            color: '#a1a1aa',
-            '&:hover': {
-              borderColor: '#7c3aed',
-              color: '#a78bfa',
-              backgroundColor: 'rgba(124, 58, 237, 0.05)',
-            },
-          }}
         >
           添加指令
         </Button>
