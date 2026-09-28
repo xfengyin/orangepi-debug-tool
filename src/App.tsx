@@ -4,17 +4,20 @@ import { useThemeStore, useAppStore, useLogStore } from './stores';
 import Sidebar from './components/layout/Sidebar';
 import CommandPalette from './components/layout/CommandPalette';
 import Header from './components/layout/Header';
+import StatusBar from './components/layout/StatusBar';
+import { DRAWER_WIDTH } from './components/layout/constants';
 import OverviewPage from './components/overview/OverviewPage';
 import SerialPage from './components/serial/SerialPage';
 import GpioPage from './components/gpio/GpioPage';
 import PwmPage from './components/pwm/PwmPage';
 import LogPage from './components/log/LogPage';
 import SettingsPage from './components/settings/SettingsPage';
-import { useSerialStore } from './stores/serialStore';
+import { useUiTokens } from './theme/useUiTokens';
 
 const App: React.FC = () => {
   const [commandOpen, setCommandOpen] = React.useState(false);
   const { theme } = useThemeStore();
+  const t = useUiTokens();
   const {
     currentView,
     isSidebarOpen,
@@ -24,10 +27,8 @@ const App: React.FC = () => {
     setGlobalError,
     loadSystemInfo,
     checkOrangePi,
-    systemInfo,
   } = useAppStore();
   const { addLog } = useLogStore();
-  const { status, config } = useSerialStore();
 
   // Initialize app
   useEffect(() => {
@@ -97,7 +98,7 @@ const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', bgcolor: '#0a0a0a' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', bgcolor: t.bg }}>
         {/* Main area */}
         <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
           {/* Sidebar */}
@@ -111,12 +112,12 @@ const App: React.FC = () => {
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
-              transition: (theme) =>
-                theme.transitions.create('margin', {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.leavingScreen,
+              transition: (muiTheme) =>
+                muiTheme.transitions.create('margin', {
+                  easing: muiTheme.transitions.easing.sharp,
+                  duration: muiTheme.transitions.duration.leavingScreen,
                 }),
-              marginLeft: isSidebarOpen ? 0 : '-240px',
+              marginLeft: isSidebarOpen ? 0 : `-${DRAWER_WIDTH}px`,
             }}
           >
             <Header onOpenCommand={() => setCommandOpen(true)} />
@@ -125,7 +126,7 @@ const App: React.FC = () => {
                 flexGrow: 1,
                 overflow: 'auto',
                 p: 3,
-                backgroundColor: '#0a0a0a',
+                backgroundColor: t.bg,
               }}
             >
               {renderPage()}
@@ -133,59 +134,7 @@ const App: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Status Bar - Cursor-style bottom bar */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            px: 2,
-            py: 0.5,
-            minHeight: 24,
-            backgroundColor: '#141414',
-            borderTop: '1px solid #2a2a2a',
-            fontSize: '0.7rem',
-            fontFamily: '"JetBrains Mono", "SF Mono", monospace',
-            color: '#71717a',
-            flexShrink: 0,
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* Connection Status */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Box
-                component="span"
-                sx={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: '50%',
-                  backgroundColor: status.connected ? '#4ade80' : '#71717a',
-                  boxShadow: status.connected ? '0 0 6px rgba(74, 222, 128, 0.5)' : 'none',
-                }}
-              />
-              <span>{status.connected ? 'Connected' : 'Disconnected'}</span>
-            </Box>
-            {/* Port Info */}
-            {status.connected && config.port_name && (
-              <span>
-                {config.port_name} @ {config.baud_rate} bps
-              </span>
-            )}
-            {/* Data Stats */}
-            {status.connected && (
-              <span>
-                RX: {status.rx_bytes} | TX: {status.tx_bytes}
-              </span>
-            )}
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* Device Info */}
-            {systemInfo?.hostname && (
-              <span>{systemInfo.hostname}</span>
-            )}
-            <span>OrangePi Debug Tool v{systemInfo?.version || '2.0.0'}</span>
-          </Box>
-        </Box>
+        <StatusBar />
       </Box>
 
       {/* Global error snackbar */}
@@ -195,11 +144,7 @@ const App: React.FC = () => {
         onClose={() => setGlobalError(null)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert
-          severity="error"
-          onClose={() => setGlobalError(null)}
-          sx={{ width: '100%', backgroundColor: '#1a1a1a', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)' }}
-        >
+        <Alert severity="error" onClose={() => setGlobalError(null)} sx={{ width: '100%' }}>
           {globalError}
         </Alert>
       </Snackbar>
