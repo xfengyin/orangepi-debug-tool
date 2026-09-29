@@ -79,7 +79,7 @@ notify = { version = "6.1", default-features = false, features = ["macos_fsevent
 
 # Configuration
 config = "0.14"
-dirs = "5.0"
+dirs = "7.0"
 
 # HTTP Client (for updates)
 reqwest = { version = "0.12", features = ["json"], optional = true }
