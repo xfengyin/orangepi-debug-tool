@@ -78,7 +78,7 @@ crossbeam = "0.8"
 notify = { version = "6.1", default-features = false, features = ["macos_fsevent"] }
 
 # Configuration
-config = "0.14"
+config = "0.15"
 dirs = "5.0"
 
 # HTTP Client (for updates)
