@@ -74,7 +74,7 @@
     "postcss": "^8.5.28",
     "prettier": "^3.9.9",
     "typescript": "^5.9.3",
-    "typedoc": "^0.25.12",
+    "typedoc": "^0.28.20",
     "vite": "^5.4.21",
     "vitest": "^1.6.1",
     "jsdom": "^24.1.3",
