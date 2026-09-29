@@ -69,11 +69,22 @@ jobs:
   build:
     name: Build Check
     needs: test
-    runs-on: ${{ matrix.os }}
+    # Gitea 上没有 windows/macos runner：这些组合只在 GitHub 上跑（Gitea 侧 job 级 if 需配合 needs 才生效）
+    if: github.server_url == 'https://github.com' || matrix.github_only == false
+    runs-on: ${{ github.server_url == 'https://github.com' && matrix.os || matrix.gitea_os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            gitea_os: amd64
+            github_only: false
+          - os: windows-latest
+            gitea_os: amd64
+            github_only: true
+          - os: macos-latest
+            gitea_os: amd64
+            github_only: true
     steps:
       - name: Checkout
         uses: actions/checkout@v5
