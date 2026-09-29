@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: amd64
           - os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
