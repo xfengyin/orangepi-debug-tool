@@ -10,16 +10,28 @@ env:
   NODE_VERSION: '20'
 
 jobs:
+  preflight:
+    name: Preflight
+    runs-on: amd64
+    steps:
+      - run: echo "preflight ok"
   release:
+    needs: preflight
+    # Gitea 上没有 windows/macos runner：这些组合只在 GitHub 上跑（Gitea 侧 job 级 if 需配合 needs 才生效）
+    if: github.server_url == 'https://github.com' || matrix.github_only == false
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: amd64
+          - os: ubuntu-latest
+            gitea_os: amd64
+            github_only: false
           - os: windows-latest
-    runs-on: ${{ matrix.os }}
+            gitea_os: amd64
+            github_only: true
+    runs-on: ${{ github.server_url == 'https://github.com' && matrix.os || matrix.gitea_os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
