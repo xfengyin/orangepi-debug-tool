@@ -70,7 +70,20 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri:build
 
-      - name: Upload nightly artifacts
+      - name: Upload nightly artifacts (Gitea)
+        if: github.server_url != 'https://github.com'
+        uses: actions/upload-artifact@v3
+        with:
+          name: nightly-artifacts
+          path: |
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*.dmg
+          retention-days: 7
+
+      - name: Upload nightly artifacts (GitHub)
+        if: github.server_url == 'https://github.com'
         uses: actions/upload-artifact@v6
         with:
           name: nightly-artifacts
