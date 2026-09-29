@@ -9,7 +9,9 @@ on:
 jobs:
   test:
     name: Test Suite
-    runs-on: ubuntu-latest
+    # Tauri 的 cargo clippy/编译峰值内存 1-2G，OrangePi Zero3 只有 1.4G RAM + 735M zram，扛不住；
+    # 重活固定到 NAS 的 amd64 runner。轻量 job（lint/单测）仍可落在 ubuntu-latest（两台都有）。
+    runs-on: amd64
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -24,6 +26,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
+          # runner-images 里没有预装 rust；不显式声明组件就只装最小工具链，
+          # cargo fmt / cargo clippy 都不存在（GitHub 托管 runner 恰好预装了才没暴露）。
+          components: rustfmt, clippy
 
       - name: Cache dependencies
         uses: actions/cache@v5
